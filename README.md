@@ -14,6 +14,7 @@
 - `project/TASK_BOARD.yaml`: 두 작업자 에이전트의 배정과 상태를 관리하는 공유 보드
 - `.agent/`: 관리자·작업자 역할, 할당량 정책, 작업 템플릿
 - `docs/requirements/TRACEABILITY.md`: MODULE_SPEC 전수 반영을 판정하는 요구사항 원장
+- `docs/coordination/TEAM_START.md`: 작업자 A·중간관리자 M·작업자 B의 실제 시작 순서
 
 ## 바로 실행
 
