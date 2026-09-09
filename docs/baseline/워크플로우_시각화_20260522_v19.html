@@ -1,0 +1,1098 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>O.S.M.U 워크플로우 시각화 v19</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; background: #f8f9fb; color: #222; }
+  .page { max-width: 1320px; margin: 0 auto; padding: 40px 32px; }
+
+  h1 { font-size: 26px; font-weight: 800; color: #1a1a2e; margin-bottom: 6px; }
+  .subtitle { font-size: 13px; color: #666; margin-bottom: 8px; }
+  .updated { font-size: 11px; color: #4f6ef7; background: #f0f3ff; padding: 4px 10px; border-radius: 8px; display: inline-block; margin-bottom: 36px; }
+
+  .section-title { font-size: 17px; font-weight: 700; color: #2c3e70; margin-bottom: 16px; border-left: 4px solid #4f6ef7; padding-left: 12px; }
+
+  /* ── 범례 ── */
+  .flow-legend { display: flex; gap: 20px; margin-bottom: 22px; flex-wrap: wrap; }
+  .legend-item { display: flex; align-items: center; gap: 7px; font-size: 12px; }
+  .dot { width: 13px; height: 13px; border-radius: 50%; }
+  .dot-ai { background: #6c63ff; } .dot-user { background: #f9a825; }
+  .dot-dash { background: #26a69a; } .dot-system { background: #ef5350; }
+  .dot-db { background: #2c3e70; }
+
+  /* ── 파이프라인 플로우 ── */
+  .flow-container { display: flex; align-items: flex-start; gap: 0; overflow-x: auto; padding-bottom: 16px; margin-bottom: 40px; }
+  .flow-stage { display: flex; flex-direction: column; align-items: center; min-width: 200px; }
+  .stage-header { color: white; border-radius: 10px 10px 0 0; padding: 10px 14px; font-size: 13px; font-weight: 700; width: 100%; text-align: center; background: #2c3e70; }
+  .stage-header.kw  { background: #1565C0; }
+  .stage-header.col { background: #2c3e70; }
+  .stage-header.gen { background: #5B4FCF; }
+  .stage-header.chk { background: #B57C00; }
+  .stage-header.pub { background: #00796B; }
+  .stage-body { background: white; border: 2px solid #dce3f5; border-top: none; border-radius: 0 0 10px 10px; padding: 12px 11px; width: 100%; min-height: 310px; }
+  .value-item { display: flex; align-items: flex-start; gap: 7px; margin-bottom: 9px; font-size: 11.5px; line-height: 1.5; }
+  .badge { flex-shrink: 0; padding: 2px 7px; border-radius: 10px; font-size: 10px; font-weight: 700; color: white; white-space: nowrap; }
+  .badge-ai     { background: #6c63ff; }
+  .badge-user   { background: #f9a825; color: #333; }
+  .badge-dash   { background: #26a69a; }
+  .badge-system { background: #ef5350; }
+  .badge-db     { background: #2c3e70; }
+  .badge-housekeeping { background: #e53935; }
+  .db-note { font-size: 10px; color: #4f6ef7; font-weight: 700; background: #f0f3ff; border-radius: 5px; padding: 6px 9px; margin-top: 8px; line-height: 1.7; }
+  .housekeeping-note { font-size: 10px; color: #c62828; font-weight: 700; background: #fff0f0; border-radius: 5px; padding: 6px 9px; margin-bottom: 8px; line-height: 1.7; border-left: 3px solid #e53935; }
+  .phase-label { font-size: 10px; font-weight: 700; color: #2c3e70; margin: 8px 0 5px; border-top: 1px dashed #dce3f5; padding-top: 7px; }
+  .arrow-wrap { display: flex; align-items: center; padding-top: 38px; flex-shrink: 0; }
+  .arrow { width: 30px; height: 2px; background: #4f6ef7; position: relative; }
+  .arrow::after { content: ''; position: absolute; right: -1px; top: -5px; border: 6px solid transparent; border-left: 10px solid #4f6ef7; }
+
+  /* ── status 칩 ── */
+  .status-flow { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+  .s-chip { padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 700; }
+  .s-wait    { background: #eceff1; color: #546e7a; }
+  .s-gen     { background: #e8eaf6; color: #3949ab; }
+  .s-review  { background: #fff8e1; color: #f57f17; }
+  .s-approved{ background: #ede7f6; color: #6a1b9a; }
+  .s-done    { background: #e0f2f1; color: #00695c; }
+  .s-blocked { background: #fce4ec; color: #880e4f; }
+  .s-fail    { background: #ffebee; color: #c62828; }
+  .s-arrow   { color: #aaa; font-size: 14px; }
+  .s-note    { font-size: 10px; color: #aaa; font-style: italic; }
+
+  /* ── 테이블 공통 ── */
+  .io-section { margin-bottom: 44px; overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 12px rgba(0,0,0,0.08); }
+  th { background: #2c3e70; color: white; padding: 11px 14px; font-size: 12px; font-weight: 700; text-align: left; }
+  td { padding: 10px 14px; font-size: 12px; border-bottom: 1px solid #eef0f5; vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: #f5f7ff; }
+  .tag { display: inline-block; padding: 2px 8px; border-radius: 8px; font-size: 10px; font-weight: 600; margin: 1px; }
+  .tag-ai   { background: #ede9ff; color: #5b4fcf; }
+  .tag-user { background: #fff8e1; color: #b57c00; }
+  .tag-dash { background: #e0f2f1; color: #00796b; }
+  .tag-new  { background: #ffebee; color: #c62828; }
+  .tag-upd  { background: #fff3e0; color: #e65100; }
+  .tag-ok   { background: #e0f2f1; color: #00796b; }
+  .tag-clr  { background: #ffebee; color: #c62828; }
+
+  /* ── 카드 그리드 ── */
+  .card-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
+  .card-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 20px; }
+  .card-grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 20px; }
+  .card { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.08); }
+  .card-header { padding: 10px 16px; font-size: 12px; font-weight: 700; color: white; }
+  .card-body { padding: 14px 16px; font-size: 12px; color: #444; line-height: 1.7; }
+
+  /* ── DB 스키마 카드 ── */
+  .schema-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 14px; margin-bottom: 12px; }
+  .schema-card { background: white; border-radius: 10px; padding: 14px; box-shadow: 0 2px 10px rgba(0,0,0,0.07); border-top: 3px solid #4f6ef7; }
+  .schema-card.new { border-top-color: #e53935; }
+  .schema-card.upd { border-top-color: #f9a825; }
+  .schema-field { font-size: 13px; font-weight: 700; color: #2c3e70; margin-bottom: 3px; }
+  .schema-badge { font-size: 10px; padding: 1px 7px; border-radius: 8px; margin-left: 5px; vertical-align: middle; }
+  .schema-badge.new { background: #ffebee; color: #c62828; }
+  .schema-badge.upd { background: #fff8e1; color: #b57c00; }
+  .schema-type { font-size: 11px; color: #888; margin-bottom: 6px; }
+  .schema-desc { font-size: 11.5px; color: #444; line-height: 1.6; }
+  .schema-example { font-size: 10px; color: #6c63ff; background: #f5f3ff; padding: 4px 8px; border-radius: 4px; margin-top: 7px; font-family: monospace; }
+
+  /* ── 인포 박스 ── */
+  .info-box { background: #f9f9fb; border-radius: 8px; padding: 12px 16px; font-size: 11px; color: #555; line-height: 1.9; margin-top: 12px; }
+
+  /* ── 롤백 카드 ── */
+  .rb-header { padding: 10px 16px; font-size: 12px; font-weight: 700; color: white; }
+  .rb-header.rewrite { background: #5B4FCF; }
+  .rb-header.img     { background: #26a69a; }
+  .rb-body { padding: 14px 16px; }
+  .rb-label { font-size: 11px; color: #888; margin-bottom: 3px; }
+  .rb-value { font-size: 12px; color: #333; margin-bottom: 9px; font-weight: 600; }
+  .rb-flow  { font-size: 11px; color: #4f6ef7; background: #f0f3ff; padding: 6px 10px; border-radius: 6px; line-height: 1.8; }
+
+  /* ── 점수 바 ── */
+  .score-bar-wrap { display: flex; gap: 5px; align-items: center; margin-bottom: 8px; }
+  .score-bar { color: white; text-align: center; padding: 7px 4px; border-radius: 4px; font-size: 11px; font-weight: 700; }
+
+  /* ── config 카드 ── */
+  .config-card { background: white; border-radius: 8px; padding: 10px 14px; box-shadow: 0 1px 6px rgba(0,0,0,0.07); border-left: 3px solid #4f6ef7; margin-bottom: 8px; }
+  .config-key   { font-size: 12px; font-weight: 700; color: #2c3e70; font-family: monospace; }
+  .config-val   { font-size: 11px; color: #5b4fcf; font-weight: 700; margin-left: 8px; }
+  .config-desc  { font-size: 11px; color: #666; margin-top: 3px; }
+  .config-group { margin-bottom: 20px; }
+  .config-group-label { font-size: 13px; font-weight: 700; color: #fff; background: #2c3e70; padding: 6px 14px; border-radius: 20px; display: inline-block; margin-bottom: 10px; }
+
+  /* ── 키워드 등급 바 ── */
+  .tier-bar-wrap { display: flex; height: 44px; border-radius: 8px; overflow: hidden; margin-bottom: 14px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+  .tier-segment { display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: white; flex-direction: column; gap: 2px; }
+  .tier-label { font-size: 9px; opacity: 0.85; }
+
+  @media (max-width: 768px) {
+    .card-grid-2, .card-grid-3, .card-grid-4 { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- 헤더 -->
+  <h1>O.S.M.U — 워크플로우 시각화</h1>
+  <p class="subtitle">AI 에이전트 기반 콘텐츠 자동화 파이프라인 | 개발·PM·기획 공용 문서</p>
+  <span class="updated">🔄 v19 기준 (2026-05-22) — MODULE_SPEC v23 반영: 수직 확장 max_levels 2→1 하향 (환각 최소화 원칙, Level 2 제거, v1 운영 후 트래킹 기반 재검토 방침)</span>
+
+  <!-- ① 모듈 파이프라인 워크플로우 -->
+  <div style="margin-bottom:44px">
+    <div class="section-title">① 모듈 파이프라인 — 값의 주체 구분</div>
+    <div class="flow-legend">
+      <div class="legend-item"><div class="dot dot-ai"></div> AI 자동</div>
+      <div class="legend-item"><div class="dot dot-user"></div> 사용자 직접</div>
+      <div class="legend-item"><div class="dot dot-dash"></div> Slack / 대시보드</div>
+      <div class="legend-item"><div class="dot dot-system"></div> 시스템 자동</div>
+      <div class="legend-item"><div class="dot dot-db"></div> DB 업데이트</div>
+    </div>
+    <div class="flow-container">
+
+      <!-- keyword_researcher -->
+      <div class="flow-stage" style="min-width:220px">
+        <div class="stage-header kw">🔍 keyword_researcher</div>
+        <div class="stage-body">
+          <div class="housekeeping-note">
+            🧹 <b>매 실행 시 시작 (housekeeping)</b><br>
+            <span style="color:#b71c1c">① 이물질 스캔: last_evaluated_at IS NULL → Slack 알림 + 즉시 DELETE</span><br>
+            revival_days 초과 키워드 재평가<br>
+            저품질 → archived<br>
+            pool_max_size 초과 → 삭제 정책 실행
+          </div>
+          <div class="value-item"><span class="badge badge-user">입력</span><span>씨드 키워드 또는 <code style="font-size:9px">--recommend</code></span></div>
+          <div class="value-item"><span class="badge badge-system">시스템</span><span>씨드 임베딩 즉석 생성 → keywords.embedding 유사도 검색 → ≥0.93이면 "이거 말씀하시나요?" 안내</span></div>
+          <div style="font-size:10px; background:#fff8e1; border-radius:5px; padding:5px 8px; margin-bottom:7px; line-height:1.8; color:#555; border-left:2px solid #f9a825">
+            <b>Path A</b> — "맞아요" 선택 시: 해당 키워드만 재평가. 확장 없음<br>
+            <b>Path B</b> — "아니요" / 유사 없음: relKeyword 확장 전체 실행
+          </div>
+          <div class="value-item"><span class="badge badge-system" style="font-size:9px">v15 전환</span><span>Search Ad API <code style="font-size:9px">relKeyword</code> → 후보 최대 ~100개 확장 <em style="font-size:9px">(추가 호출 0 — 점수화 API 호출①과 동일)</em></span></div>
+          <div class="value-item"><span class="badge badge-system" style="background:#7b1fa2; font-size:9px">v15 신규</span><span>무관 키워드 필터 — 씨드 임베딩 anchor vs 후보 유사도 &lt; 0.55 제외 → 10~20개 통과</span></div>
+          <div style="font-size:10px; color:#c62828; font-weight:700; background:#ffebee; border-radius:5px; padding:5px 8px; margin-bottom:7px; line-height:1.9; border-left:2px solid #e53935">
+            🚨 <b>하드컷 3종 (점수 계산 전 적용)</b><br>
+            ① monthly_search_volume &lt; 500 → 즉시 폐기<br>
+            ② datalab_slope &lt; 0 (관심 하락 중) → 즉시 폐기<br>
+            ③ blog_total_count &lt; 30 (레퍼런스 부족) → 즉시 폐기
+          </div>
+          <div class="value-item"><span class="badge badge-ai">AI</span><span>DEFAULT / LONGTAIL 프로필로 점수화 (100점)</span></div>
+          <div class="value-item"><span class="badge badge-system">시스템</span><span>회피 규칙 (a) 어뷰징 — 후보 embedding vs 기발행 황금키워드 embedding 비교 (≥0.85 → 쿨다운)</span></div>
+          <div class="value-item"><span class="badge badge-system">시스템</span><span>(b) 자기잠식 — keyword_usages DB 조회</span></div>
+          <div class="value-item"><span class="badge badge-dash">Rank UI</span><span>active 풀 + 신규 후보 total_score 기준 TOP 5 표시. 신규 후보 <b>(new)</b> 레이블</span></div>
+          <div class="value-item"><span class="badge badge-user">확인</span><span>황금 키워드 1개 선정</span></div>
+          <div class="db-note">
+            📦 keywords 적재/갱신 (embedding 포함)<br>
+            📦 keyword_evaluations 기록<br>
+            📦 keyword_usages <code>in_progress</code> 생성<br>
+            ⚠️ 파이프라인 중단 시(사유 불문) → <code>status = failed</code>, 잠금 해제
+          </div>
+        </div>
+      </div>
+      <div class="arrow-wrap"><div class="arrow"></div></div>
+
+      <!-- collector -->
+      <div class="flow-stage" style="min-width:240px">
+        <div class="stage-header col">✏️ collector</div>
+        <div class="stage-body">
+          <div class="phase-label" style="margin-top:0; border-top:none; padding-top:0">Phase 1-A — 상위 블로그 수집</div>
+          <div class="value-item"><span class="badge badge-system">시스템</span><span>Naver webdoc 5개 + Google Serper 5개 요청 (총 10개)</span></div>
+          <div class="value-item"><span class="badge badge-system">시스템</span><span>Pre-fetch: 도메인 블랙리스트 제거</span></div>
+          <div class="value-item"><span class="badge badge-system">시스템</span><span>Firecrawl 본문 추출 → Post-fetch: 길이·H2·키워드밀도·발행일 필터</span></div>
+          <div class="value-item"><span class="badge badge-system">시스템</span><span>양쪽 노출 → HIGH / 단일 → NORMAL weight 태깅</span></div>
+          <div class="value-item"><span class="badge badge-system">시스템</span><span>H2 + leading_sentences 압축 (LLM 없이 규칙 기반)</span></div>
+          <div style="font-size:10px; background:#f0f3ff; border-radius:5px; padding:4px 8px; margin-bottom:4px; color:#3949ab; line-height:1.7">
+            fallback: &lt;5개 → slope>0 수평분해 / slope≈0 수직확장(max min(2,청크-1)) / 단계 소진 → ⚠️ 중단
+          </div>
+          <div class="phase-label">Phase 1-B — 구조 초안 생성</div>
+          <div class="value-item"><span class="badge badge-ai">AI</span><span>collection_type별 분석: normal H2패턴 / 수평분해 공통성합성 / 수직확장 원본의도보정</span></div>
+          <div class="value-item"><span class="badge badge-system">시스템</span><span>구조 초안 + content_template(type 고정어휘 + flow 배열) 출력</span></div>
+          <div class="value-item"><span class="badge badge-system">시스템</span><span>summary_embedding 생성 → 기존 글 유사도 체크 (0.75 임계)</span></div>
+          <div class="phase-label">Phase 1-D — 사용자 Slack 알림</div>
+          <div class="value-item"><span class="badge badge-dash">Slack</span><span>기본 메시지: 키워드·제목·단락구성·템플릿·승인/대시보드 링크 <b>항상 전송</b></span></div>
+          <div style="font-size:10px; background:#fff8e1; border-radius:5px; padding:4px 8px; margin-bottom:4px; color:#b57c00; line-height:1.7; border-left:2px solid #f9a825">
+            ⚠️ 유사도 ≥ 0.75 시에만 추가 표시:<br>
+            content_template.type(구조) / tone_style.voice(느낌) 수정 선택지 2종<br>
+            수정 시 Phase 1-B 재호출 — collection_context 재사용 (Firecrawl 추가 없음)
+          </div>
+          <div class="value-item"><span class="badge badge-user">확인</span><span>승인 or 파라미터 수정 or 대시보드 직접 편집</span></div>
+          <div class="db-note">📦 contents 레코드 신규 생성<br>title · paragraph_blueprint(target_reader 포함) · collection_context · summary_embedding → <code>구조확정대기</code></div>
+          <div class="phase-label">Phase 2-A — 소스 탐색 (구조 확정 후)</div>
+          <div class="value-item"><span class="badge badge-system">시스템</span><span>h2_subtitle + core_message + assigned_keywords 조합 쿼리로 검색</span></div>
+          <div class="value-item"><span class="badge badge-system">시스템</span><span>공신력 소스: 뉴스·매거진·칼럼·공공기관 (블로그·포럼 제외)</span></div>
+          <div class="phase-label">Phase 2-B — 팩트 정규화</div>
+          <div class="value-item"><span class="badge badge-system">시스템</span><span>Firecrawl 소스 크롤링</span></div>
+          <div class="value-item"><span class="badge badge-ai">AI</span><span>사실·수치·주장만 추출 (verbatim ❌) — 단락당 다중 소스 허용</span></div>
+          <div style="font-size:10px; color:#888; margin-bottom:2px">source_url per fact 저장 → checker cross 비교 기준</div>
+          <div class="db-note">📦 normalized_sources → <code>생성대기</code></div>
+          <div style="font-size:10px; color:#888; margin-top:6px">Firecrawl: 1-A 최대10회 + 2-B 3~4회 ≈ 13~14회/글 (정상케이스)</div>
+        </div>
+      </div>
+      <div class="arrow-wrap"><div class="arrow"></div></div>
+
+      <!-- contents_maker -->
+      <div class="flow-stage">
+        <div class="stage-header gen">🖊️ contents_maker</div>
+        <div class="stage-body">
+          <div class="value-item"><span class="badge badge-system">시스템</span><span>Unsplash API → 단락별 이미지 URL 수집 <em>(이미지·글쓰기 병렬)</em></span></div>
+          <div class="value-item"><span class="badge badge-ai">AI</span><span><code>fact_based</code>: 정규화 팩트 컨텍스트로 자연스러운 문장화</span></div>
+          <div class="value-item"><span class="badge badge-ai">AI</span><span><code>llm_generated</code>: 키워드+맥락+<b>블로거 페르소나</b> 자유 생성 (도입·결말) <em style="font-size:9px;color:#e65100">v16: AI 패턴 회피 지침 적용</em></span></div>
+          <div style="font-size:10px; color:#888; margin-bottom:6px">✅ 최소 1,500자 보장 목표</div>
+          <div style="font-size:10px; color:#e53935; margin-bottom:4px">⚠️ 이미지 오류: error_log 기록 후 계속 (소프트)</div>
+          <div style="font-size:10px; color:#e53935; margin-bottom:8px">⛔ LLM 오류: status → 실패</div>
+          <div class="db-note">📦 refined_post (HTML)<br>📦 image_urls → <code>시스템검증대기</code></div>
+        </div>
+      </div>
+      <div class="arrow-wrap"><div class="arrow"></div></div>
+
+      <!-- checker -->
+      <div class="flow-stage">
+        <div class="stage-header chk">✅ checker</div>
+        <div class="stage-body">
+          <div class="phase-label" style="margin-top:0; border-top:none; padding-top:0">Stage 1 — 시스템 검증</div>
+          <div class="value-item"><span class="badge badge-system">Tier A</span><span>결정적 검증: 글자수·H태그·이미지·키워드 등 (토큰 0)</span></div>
+          <div class="value-item"><span class="badge badge-system">Tier B</span><span>표절 검사: 임베딩(로컬) 자기 소스 검사 <em style="font-size:9px;color:#e65100">v16: Google CSE 제거 (계정 없음·기능 중복)</em></span></div>
+          <div style="font-size:10px; color:#888; margin-bottom:6px">전체 유사도 ≤ 15% · 문장 최대 ≤ 35%</div>
+          <div class="db-note">📦 system_check_result<br>📦 plagiarism_overall / _max_sentence<br>→ <code>사용자검토중</code></div>
+          <div class="phase-label">Stage 2 — 사람 검증</div>
+          <div class="value-item"><span class="badge badge-dash">Slack</span><span>미리보기 URL + 시스템 검증 결과 카드</span></div>
+          <div class="value-item"><span class="badge badge-user">확인</span><span>✅ 승인 / 🔄 수정 / ❌ 거절</span></div>
+          <div style="font-size:10px; color:#e65100; margin:4px 0 4px 0; font-weight:600">⚠️ AdSense 필수 검토 (v16)</div>
+          <div style="font-size:10px; color:#555; margin-bottom:2px; padding-left:4px">☐ 도입부: AI 패턴 문장 없는지 확인·수정</div>
+          <div style="font-size:10px; color:#555; margin-bottom:6px; padding-left:4px">☐ 결말: 요약 나열형 → 블로거 소감형으로 수정</div>
+          <div class="db-note">📦 refined_post (수정분) → <code>승인완료</code></div>
+        </div>
+      </div>
+      <div class="arrow-wrap"><div class="arrow"></div></div>
+
+      <!-- publisher -->
+      <div class="flow-stage">
+        <div class="stage-header pub">🚀 publisher</div>
+        <div class="stage-body">
+          <div class="value-item"><span class="badge badge-system">게이트</span><span>일일 발행 상한 (2편/계정) 체크</span></div>
+          <div class="value-item"><span class="badge badge-system">게이트</span><span>최소 draft 대기 시간 ≥ 30분 체크</span></div>
+          <div class="value-item"><span class="badge badge-system">게이트</span><span>(a) 어뷰징 쿨다운 재확인 — 직전 발행 글 유사도 체크</span></div>
+          <div class="value-item"><span class="badge badge-system">시스템</span><span>발행 시간 분산 (활동 시간대 랜덤 윈도우)</span></div>
+          <div class="value-item"><span class="badge badge-system">시스템</span><span>Playwright headed 모드로 Tistory 발행<br><em style="font-size:10px">(공식 API 종료 → 세션 쿠키 우회)</em></span></div>
+          <div style="font-size:10px; color:#e53935; margin-top:4px">⚠️ 쿠키 만료 시 Slack 알림 → 수동 재로그인 (v1)</div>
+          <div class="db-note">📦 platform_url · published_at<br>📦 keyword_usages.published_at 갱신<br>→ <code>발행완료</code></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ② keyword_researcher housekeeping 상세 -->
+  <div style="margin-bottom:44px">
+    <div class="section-title">② keyword_researcher housekeeping 흐름 <span style="font-size:11px; background:#7b1fa2; color:white; padding:2px 8px; border-radius:8px; margin-left:6px">v15 이물질 스캔 추가</span></div>
+    <div style="overflow-x:auto">
+    <table style="min-width:700px">
+      <thead><tr>
+        <th style="width:8%">순서</th>
+        <th style="width:28%">처리</th>
+        <th style="width:30%">조건 / 기준</th>
+        <th>결과 / DB 변경</th>
+      </tr></thead>
+      <tbody>
+        <tr style="background:#fce4ec">
+          <td><b style="color:#b71c1c">① 이물질<br>스캔</b> <span style="font-size:9px;background:#7b1fa2;color:white;padding:1px 5px;border-radius:4px">v15</span></td>
+          <td>last_evaluated_at IS NULL 키워드 탐지</td>
+          <td>정상 흐름에서 발생 불가 (평가가 풀 적재 전제). 발견 시 트랜잭션 버그로 간주</td>
+          <td>🔔 Slack / 로그 알림: "이물질 감지. 풀을 정리합니다."<br>📦 keywords 즉시 DELETE<br><em style="font-size:10px">keyword_evaluations·usages 레코드 미존재이므로 연쇄 삭제 없음</em></td>
+        </tr>
+        <tr style="background:#fff0f0">
+          <td><b>② 스캔</b></td>
+          <td>revival_days 초과 키워드 탐색</td>
+          <td><code>last_evaluated_at</code> + <code>keyword.revival_days(30)</code> 기준<br>status = active인 키워드만</td>
+          <td>재평가 대상 목록 생성</td>
+        </tr>
+        <tr>
+          <td><b>③ 재평가</b></td>
+          <td>대상 키워드 점수 재계산</td>
+          <td>기존 프로필(DEFAULT/LONGTAIL) 유지. 현재 시점 API 신호 재수집</td>
+          <td>📦 keyword_evaluations 신규 레코드 기록<br>keywords.last_evaluated_at 갱신</td>
+        </tr>
+        <tr style="background:#fff8e1">
+          <td><b>④ 아카이브</b></td>
+          <td>저품질 판정 키워드 archived 처리</td>
+          <td>재평가 후에도 점수 개선 없는 저품질<br>(운영 중 기준 구체화 예정)</td>
+          <td>📦 keywords.status = archived<br>연결된 keyword_evaluations 함께 삭제</td>
+        </tr>
+        <tr style="background:#fff0f0">
+          <td><b>⑤ 풀 체크</b></td>
+          <td>pool_max_size 초과 여부 확인</td>
+          <td>active 키워드 수 &gt; <code>keyword.pool_max_size(50)</code></td>
+          <td>초과 시 → 삭제 정책 실행 (아래 ③ 참조)</td>
+        </tr>
+        <tr style="background:#e8f5e9">
+          <td><b>⑥ 본 요청</b></td>
+          <td>씨드 확장 or 추천 진행</td>
+          <td>housekeeping 완료 후 실행</td>
+          <td>정상 keyword_researcher 흐름</td>
+        </tr>
+      </tbody>
+    </table>
+    </div>
+    <div class="info-box">💡 <b>왜 매 실행 시 housekeeping인가?</b> 별도 스케줄러/백그라운드 데몬 없이 재평가를 보장하기 위함. 하루 2회 실행 기준으로 revival_days(30일) 초과 키워드가 적시에 재평가되며, 풀이 조용히 쌓이는 것을 방지.</div>
+  </div>
+
+  <!-- ② (신규) 씨드 중복 확인 UX — Path A / Path B + Rank UI -->
+  <div style="margin-bottom:44px">
+    <div class="section-title">② 씨드 중복 확인 UX — Path A / B 분기 + Rank UI <span style="font-size:11px; background:#7b1fa2; color:white; padding:2px 8px; border-radius:8px; margin-left:6px">v15 신규</span></div>
+
+    <!-- 중복 확인 안내 예시 -->
+    <div style="background:white; border-radius:10px; box-shadow:0 2px 10px rgba(0,0,0,0.08); padding:16px 20px; margin-bottom:20px; font-family:monospace; font-size:12px; line-height:2">
+      <div style="font-size:11px; color:#888; margin-bottom:8px; font-family:sans-serif">📱 Slack 중복 확인 메시지 예시</div>
+      <div style="color:#333">비슷한 키워드가 이미 있어요:</div>
+      <div style="color:#2e7d32">&nbsp;&nbsp;✅ 홈카페 원두 추천 &nbsp;&nbsp;<b>88점</b></div>
+      <div style="color:#e65100">&nbsp;&nbsp;⚠️ 원두 보관방법 &nbsp;&nbsp;&nbsp;&nbsp;<b>82점</b> &nbsp;<span style="color:#c62828">(어뷰징 쿨다운 2일)</span></div>
+      <div style="color:#2e7d32">&nbsp;&nbsp;✅ 핸드드립 원두 &nbsp;&nbsp;&nbsp;&nbsp;<b>74점</b></div>
+      <div style="color:#666; margin-top:4px">→ 이 중에서 선택하시겠어요? 아니면 새 키워드로 진행할까요?</div>
+    </div>
+    <div style="font-size:11px; color:#666; margin-bottom:16px; background:#fff8e1; padding:8px 14px; border-radius:6px; border-left:3px solid #f9a825">
+      ⚠️ 회피 신호 (<b>어뷰징 쿨다운 / 자기잠식 위험</b>)는 레이블로 표시하되 <b>사전 필터링하지 않음</b>. 회피 규칙 최종 체크는 황금 키워드 선정 시점에 일괄 수행.
+    </div>
+
+    <!-- Path A / B 카드 -->
+    <div class="card-grid-2" style="margin-bottom:20px">
+      <div class="card">
+        <div class="card-header" style="background:#1565C0">Path A — "맞아요, 그거예요" (기존 키워드 재평가)</div>
+        <div class="card-body">
+          <div style="font-size:11.5px; line-height:1.9; color:#444">
+            <div>1. 해당 키워드 1개만 재평가 실행</div>
+            <div>2. keyword_evaluations 기록 → 점수 갱신</div>
+            <div>3. 씨드 확장 없음 (relKeyword 호출 불필요)</div>
+            <div>4. Rank UI로 결과 표시 → 사용자 선정</div>
+          </div>
+          <div style="margin-top:10px; font-size:10px; color:#888">임베딩 재사용: 씨드 임베딩은 중복 확인 단계에서 이미 생성 — 재활용</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header" style="background:#7b1fa2">Path B — "아니요" / 유사 없음 (신규 확장 흐름)</div>
+        <div class="card-body">
+          <div style="font-size:11.5px; line-height:1.9; color:#444">
+            <div>1. Search Ad API → relKeyword 배열 취득</div>
+            <div>2. 무관 키워드 필터 (씨드 임베딩 anchor, 0.55)</div>
+            <div>3. 필터 통과 후보 전량 평가 → pool 전량 적재</div>
+            <div>4. Rank UI로 결과 표시 → 사용자 선정</div>
+          </div>
+          <div style="margin-top:10px; font-size:10px; color:#888">임베딩 anchor: 씨드 원문 구문 ("홈카페 원두 추천") — 분해 단어 아님</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 무관 키워드 필터 박스 -->
+    <div style="background:white; border-radius:10px; box-shadow:0 2px 10px rgba(0,0,0,0.08); overflow:hidden; margin-bottom:20px">
+      <div style="background:#7b1fa2; color:white; padding:10px 16px; font-size:12px; font-weight:700">🔬 무관 키워드 필터 (v15 신규) — irrelevant_filter_threshold = 0.55</div>
+      <div style="padding:14px 18px; font-size:11.5px; color:#444; line-height:2">
+        <b>필터 방식</b>: 씨드 임베딩(원문 구문 전체) vs 각 relKeyword 후보 임베딩 → 코사인 유사도 비교<br>
+        <b>모델</b>: ko-sroberta-multitask (로컬, 비용 0)<br>
+        <b>통과 기준</b>: 유사도 ≥ 0.55 → 평가 진행 &nbsp;|&nbsp; 유사도 < 0.55 → 제외<br>
+        <b>기대 통과 수</b>: ~100개 relKeyword → 10~20개 통과 / 런<br>
+        <div style="margin-top:8px; background:#f5f3ff; border-radius:6px; padding:8px 12px; font-family:monospace; font-size:10.5px; line-height:1.9">
+          "에스프레소 원두" (~0.68) ✅ 통과<br>
+          "커피 머신 추천" (~0.57) ✅ 통과<br>
+          "홈카페 인테리어" (~0.52) ❌ 제외<br>
+          "요구르트" (~0.18) ❌ 제외
+        </div>
+        <div style="margin-top:8px; font-size:10px; color:#888">임계치 0.55는 v1 초기값. ko-sroberta 실증 실험 후 재보정 예정.</div>
+      </div>
+    </div>
+
+    <!-- Rank UI -->
+    <div style="background:white; border-radius:10px; box-shadow:0 2px 10px rgba(0,0,0,0.08); overflow:hidden">
+      <div style="background:#1565C0; color:white; padding:10px 16px; font-size:12px; font-weight:700">🏆 Rank UI — 황금 키워드 후보 제시 화면 (Path A/B 공통, --recommend 모드 포함)</div>
+      <div style="padding:14px 18px">
+        <div style="font-family:monospace; font-size:11.5px; background:#f8f9fb; border-radius:6px; padding:10px 14px; line-height:2.2; margin-bottom:12px">
+          <div style="color:#888; font-size:10px; margin-bottom:6px">Slack 표시 예시 — 전체 active 풀 + 신규 후보 / total_score 내림차순 상위 5위</div>
+          순위 &nbsp; 키워드 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 점수 &nbsp; 상태<br>
+          ──────────────────────────────────────────<br>
+          1위 &nbsp; 원두 보관방법 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 91점 &nbsp; <span style="color:#2e7d32">✅ 안전</span><br>
+          2위 &nbsp; 핸드드립 원두 추천 &nbsp;&nbsp;&nbsp;&nbsp; 88점 &nbsp; <span style="color:#2e7d32">✅ 안전</span> &nbsp; <span style="background:#e53935;color:white;padding:1px 5px;border-radius:3px;font-size:9px">(new)</span><br>
+          3위 &nbsp; 홈카페 원두 추천 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 85점 &nbsp; <span style="color:#e65100">⚠️ 쿨다운 2일</span><br>
+          4위 &nbsp; 원두 그라인더 추천 &nbsp;&nbsp;&nbsp;&nbsp; 79점 &nbsp; <span style="color:#2e7d32">✅ 안전</span><br>
+          5위 &nbsp; 커피 원두 종류 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 74점 &nbsp; <span style="color:#2e7d32">✅ 안전</span><br>
+          ──────────────────────────────────────────<br>
+          <span style="color:#888; font-size:10px">(이번 씨드에서 생성된 후보 2개 포함)</span>
+        </div>
+        <div style="font-size:11px; color:#555; line-height:1.9">
+          <b>(new) 레이블</b>: 이번 세션에서 신규 평가된 후보. 5위 안에 없으면 5위 아래 별도 표시<br>
+          <b>기존 active 키워드 점수</b>: 재평가 없이 keyword_evaluations 최근 레코드 사용 (재평가는 housekeeping 전담)<br>
+          <b>--recommend 모드</b>: 씨드 입력 없음. relKeyword 확장·필터·신규 평가 생략. active 풀 top 5만 반환. (new) 레이블 없음
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ③ 키워드 풀 삭제 정책 -->
+  <div style="margin-bottom:44px">
+    <div class="section-title">③ 키워드 풀 삭제 정책 (v13 확정)</div>
+
+    <!-- 등급 바 -->
+    <div style="margin-bottom:20px">
+      <div style="font-size:12px; font-weight:700; color:#555; margin-bottom:8px">키워드 등급 체계</div>
+      <div class="tier-bar-wrap">
+        <div class="tier-segment" style="flex:45; background:#ef5350;">
+          부스러기
+          <span class="tier-label">0 ~ 45점</span>
+        </div>
+        <div class="tier-segment" style="flex:14; background:#ff9800;">
+          강철
+          <span class="tier-label">46 ~ 59점</span>
+        </div>
+        <div class="tier-segment" style="flex:41; background:#43a047;">
+          황금
+          <span class="tier-label">60점 이상</span>
+        </div>
+      </div>
+      <div style="font-size:10.5px; color:#888; line-height:1.9">
+        <b style="color:#ef5350">부스러기 (0~45점)</b>: 풀 삭제 1순위 후보 기준 등급 &nbsp;|&nbsp;
+        <b style="color:#ff9800">강철 (46~59점)</b>: 황금 미달이나 보존 가치 있음. 재평가 축적으로 황금 진입 가능 &nbsp;|&nbsp;
+        <b style="color:#43a047">황금 (60점+)</b>: golden_threshold 이상, 발행 대상
+      </div>
+    </div>
+
+    <div class="card-grid-2">
+      <!-- 1순위 -->
+      <div class="card">
+        <div class="card-header" style="background:#e53935">1순위 — 저품질 반복 평가 키워드</div>
+        <div class="card-body">
+          <div style="font-size:11px; color:#888; margin-bottom:6px">삭제 조건 (AND)</div>
+          <div style="font-weight:700; font-size:12px; margin-bottom:10px; line-height:1.8">
+            evaluation_count ≥ <code>pool_eviction_eval_count (3)</code><br>
+            avg_score &lt; <code>pool_eviction_score_threshold (45)</code>
+          </div>
+          <div style="font-size:11px; color:#888; margin-bottom:4px">정렬</div>
+          <div style="font-size:12px; color:#333; margin-bottom:10px"><code>last_evaluated_at</code> 오래된 순 (ASC)</div>
+          <div style="font-size:11px; color:#888; margin-bottom:4px">집계 방식</div>
+          <div style="font-size:11px; color:#555; line-height:1.7">evaluation_count, avg_score는 keyword_evaluations 테이블에서 실시간 COUNT / AVG 집계. 별도 컬럼 불필요.</div>
+        </div>
+      </div>
+      <!-- 2순위 -->
+      <div class="card">
+        <div class="card-header" style="background:#f57f17">2순위 fallback — 1순위 후보 부족 시</div>
+        <div class="card-body">
+          <div style="font-size:11px; color:#888; margin-bottom:6px">적용 조건</div>
+          <div style="font-weight:700; font-size:12px; margin-bottom:10px">1순위만으로 초과분을 채우지 못했을 때</div>
+          <div style="font-size:11px; color:#888; margin-bottom:4px">정렬</div>
+          <div style="font-size:12px; color:#333; margin-bottom:10px">① <code>last_evaluated_at</code> 오래된 순 (ASC)<br>② 동점 시 <code>total_score</code> 낮은 순 (ASC)</div>
+          <div style="font-size:11px; color:#888; margin-bottom:4px">점수 기준</div>
+          <div style="font-size:11px; color:#555; line-height:1.7">keyword_evaluations의 <b>가장 최근 평가 레코드</b> total_score 사용. 평균값 아님. 조건 없이 순차 삭제.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="info-box">
+      <b>⚠️ 공통 예외</b>: archived 키워드는 풀 카운트에 포함 안 됨 / keyword_usages.status = published 연결된 키워드는 삭제 제외<br>
+      <b>💡 설계 의도</b>: 초반에는 evaluation_count가 낮아 1순위 후보가 거의 없음. 2순위가 안전망 역할. 시간이 쌓일수록 1순위 정책이 주로 작동하게 됨.
+    </div>
+  </div>
+
+  <!-- ④ contents status 전이 -->
+  <div style="margin-bottom:40px">
+    <div class="section-title">④ contents status 전이</div>
+    <div class="status-flow" style="margin-bottom:12px">
+      <span class="s-chip s-wait">구조확정대기</span><span class="s-arrow">→</span>
+      <span class="s-chip s-gen">생성대기</span><span class="s-arrow">→</span>
+      <span class="s-chip" style="background:#e8f5e9;color:#2e7d32;padding:6px 14px;border-radius:20px;font-size:12px;font-weight:700">시스템검증대기</span><span class="s-arrow">→</span>
+      <span class="s-chip s-review">사용자검토중</span><span class="s-arrow">→</span>
+      <span class="s-chip s-approved">승인완료</span><span class="s-arrow">→</span>
+      <span class="s-chip s-done">발행완료</span>
+    </div>
+    <div style="font-size:10.5px; color:#888; margin-bottom:10px; line-height:1.9">
+      <b>구조확정대기</b>: collector Phase 1 완료 (DB 레코드 생성) &nbsp;|&nbsp;
+      <b>생성대기</b>: Phase 2 완료 &nbsp;|&nbsp;
+      <b>시스템검증대기</b>: contents_maker 완료 &nbsp;|&nbsp;
+      <b>사용자검토중</b>: checker Stage 1 통과
+    </div>
+    <div class="status-flow" style="margin-bottom:8px">
+      <span style="font-size:11px; color:#aaa; margin-right:4px">수정 롤백:</span>
+      <span class="s-chip s-review" style="font-size:10px">사용자검토중</span><span class="s-arrow">→</span>
+      <span class="s-chip s-gen" style="font-size:10px">생성대기</span>
+      <span class="s-note">케이스1·2 (글 재생성)</span>
+      <span style="margin:0 12px;color:#ddd">|</span>
+      <span class="s-chip s-review" style="font-size:10px">사용자검토중</span><span class="s-arrow">→</span>
+      <span class="s-chip s-review" style="font-size:10px">사용자검토중</span>
+      <span class="s-note">케이스3 (이미지만 재검색)</span>
+    </div>
+    <div class="status-flow">
+      <span style="font-size:11px; color:#aaa; margin-right:4px">종단 상태:</span>
+      <span class="s-chip s-fail">실패</span>
+      <span class="s-note">치명적 오류 (LLM, API 등)</span>
+      <span style="margin:0 12px;color:#ddd">|</span>
+      <span class="s-chip s-blocked">발행차단</span>
+      <span class="s-note">발행 후 AdSense / 티스토리 규정 위반 감지</span>
+    </div>
+  </div>
+
+  <!-- ⑤ DB 테이블 구조 -->
+  <div style="margin-bottom:44px">
+    <div class="section-title">⑤ DB 테이블 구조 (v1: PostgreSQL 로컬, v2+: PostgreSQL 클라우드/Supabase)</div>
+
+    <!-- keywords -->
+    <div style="margin-bottom:28px">
+      <div style="font-size:13px; font-weight:700; color:#1565C0; background:#e3f2fd; padding:7px 14px; border-radius:8px; display:inline-block; margin-bottom:12px">📁 keywords — 키워드 마스터 레지스트리</div>
+      <div class="schema-grid">
+        <div class="schema-card"><div class="schema-field">id</div><div class="schema-type">String</div><div class="schema-desc">고유 ID</div></div>
+        <div class="schema-card"><div class="schema-field">keyword</div><div class="schema-type">String</div><div class="schema-desc">키워드 텍스트</div></div>
+        <div class="schema-card"><div class="schema-field">status</div><div class="schema-type">Enum</div><div class="schema-desc">active | archived</div></div>
+        <div class="schema-card"><div class="schema-field">last_evaluated_at</div><div class="schema-type">DateTime</div><div class="schema-desc">최근 평가 시각. REVIVAL_DAYS 판단 기준 + 풀 삭제 정렬 기준</div></div>
+        <div class="schema-card upd"><div class="schema-field">embedding <span class="schema-badge upd">v11 신규</span></div><div class="schema-type">Vector(768)</div><div class="schema-desc">키워드 임베딩 (ko-sroberta). 씨드 중복 확인 및 어뷰징 쿨다운 체크에 사용</div></div>
+      </div>
+    </div>
+
+    <!-- keyword_evaluations -->
+    <div style="margin-bottom:28px">
+      <div style="font-size:13px; font-weight:700; color:#1565C0; background:#e3f2fd; padding:7px 14px; border-radius:8px; display:inline-block; margin-bottom:12px">📁 keyword_evaluations — 평가 이벤트 로그</div>
+      <div class="schema-grid">
+        <div class="schema-card"><div class="schema-field">id</div><div class="schema-type">String</div><div class="schema-desc">고유 ID</div></div>
+        <div class="schema-card"><div class="schema-field">keyword_id</div><div class="schema-type">String</div><div class="schema-desc">keywords 참조</div></div>
+        <div class="schema-card"><div class="schema-field">evaluated_at</div><div class="schema-type">DateTime</div><div class="schema-desc">평가 시각. housekeeping 재평가도 기록</div></div>
+        <div class="schema-card"><div class="schema-field">scoring_model_version</div><div class="schema-type">String</div><div class="schema-desc">예: DEFAULT_v1, LONGTAIL_v1</div></div>
+        <div class="schema-card upd"><div class="schema-field">raw_signals <span class="schema-badge upd">v14 전면 변경</span></div><div class="schema-type">JSON</div><div class="schema-desc"><b>8개 필드</b>: monthly_search_volume, blog_total_count, blog_recent_7d_count, blog_recent_30d_count, comp_idx, shopping_total, commercial_pattern_score, datalab_slope</div><div class="schema-example">// 구버전 5개 → 8개 확장<br>search_volume → monthly_search_volume<br>competition_count → blog_total_count<br>recent_density_14d → 7d + 30d (분리)<br>google_trend_score → datalab_slope</div></div>
+        <div class="schema-card upd"><div class="schema-field">score_breakdown <span class="schema-badge upd">v14 변경</span></div><div class="schema-type">JSON</div><div class="schema-desc"><b>5개 필드</b>: search_volume(0~30), blog_competition_volume(0~15), blog_competition_density(0~15), commercial_intent(0~20), trend_slope(0~10)</div><div class="schema-example">// 구버전 4개 → 5개<br>datalab_trend → search_volume (30점↑)<br>blog_competition → volume+density (분리)<br>google_trends → trend_slope</div></div>
+        <div class="schema-card upd"><div class="schema-field">total_score <span class="schema-badge upd">v13 역할 강조</span></div><div class="schema-type">Float</div><div class="schema-desc">합산 점수 (100점 만점). 풀 삭제 2순위 정렬 기준 — 가장 최근 레코드 사용 (평균 아님)</div></div>
+        <div class="schema-card"><div class="schema-field">profile</div><div class="schema-type">Enum</div><div class="schema-desc">DEFAULT | LONGTAIL</div></div>
+        <div class="schema-card"><div class="schema-field">session_id</div><div class="schema-type">String</div><div class="schema-desc">같은 세션 키워드 묶음 식별. 모델 검증용 (상대 순위 vs 실제 성과 비교)</div></div>
+        <div class="schema-card"><div class="schema-field">result</div><div class="schema-type">Enum</div><div class="schema-desc">selected | not_selected | archived</div></div>
+      </div>
+      <div class="info-box">💡 <b>evaluation_count, avg_score는 별도 컬럼 없음</b>. 풀 삭제 1순위 조건 판단 시 이 테이블에서 실시간 COUNT / AVG 집계. v1 PostgreSQL 로컬 데이터량에서 JOIN 계산으로 충분. v2+ 데이터량 증가 시 비정규화 재검토.</div>
+    </div>
+
+    <!-- keyword_usages -->
+    <div style="margin-bottom:28px">
+      <div style="font-size:13px; font-weight:700; color:#1565C0; background:#e3f2fd; padding:7px 14px; border-radius:8px; display:inline-block; margin-bottom:12px">📁 keyword_usages — 블로그별 사용 이력</div>
+      <div class="schema-grid">
+        <div class="schema-card"><div class="schema-field">id</div><div class="schema-type">String</div><div class="schema-desc">고유 ID</div></div>
+        <div class="schema-card"><div class="schema-field">keyword_id</div><div class="schema-type">String</div><div class="schema-desc">keywords 참조</div></div>
+        <div class="schema-card"><div class="schema-field">account_id</div><div class="schema-type">String</div><div class="schema-desc">사용자 계정</div></div>
+        <div class="schema-card"><div class="schema-field">blog_id</div><div class="schema-type">String</div><div class="schema-desc">블로그 식별자. <b>자기 잠식 체크 단위</b> — 블로그가 다르면 독립 사용 가능</div></div>
+        <div class="schema-card"><div class="schema-field">contents_id</div><div class="schema-type">String</div><div class="schema-desc">contents 테이블 참조</div></div>
+        <div class="schema-card"><div class="schema-field">published_at</div><div class="schema-type">DateTime</div><div class="schema-desc">발행 시각. null이면 진행 중 (in_progress)</div></div>
+        <div class="schema-card upd"><div class="schema-field">status <span class="schema-badge upd">v12 갱신</span></div><div class="schema-type">Enum</div><div class="schema-desc"><b>in_progress</b>: 진행 중<br><b>published</b>: 발행 완료 (풀 삭제 예외 대상)<br><b>failed</b>: 중단(사유 불문) → 잠금 즉시 해제. published_at null (180일 카운트 없음)</div></div>
+      </div>
+    </div>
+
+    <!-- accounts -->
+    <div style="margin-bottom:28px">
+      <div style="font-size:13px; font-weight:700; color:#c62828; background:#ffebee; padding:7px 14px; border-radius:8px; display:inline-block; margin-bottom:12px">📁 accounts — 티스토리 계정 데이터 <span style="font-size:11px; background:#c62828; color:white; padding:1px 7px; border-radius:8px; margin-left:6px">v7 신규</span></div>
+      <div class="schema-grid">
+        <div class="schema-card new"><div class="schema-field">id</div><div class="schema-type">String</div><div class="schema-desc">고유 ID</div></div>
+        <div class="schema-card new"><div class="schema-field">platform</div><div class="schema-type">String</div><div class="schema-desc">"tistory" — v3 멀티 플랫폼 확장 대비</div></div>
+        <div class="schema-card new"><div class="schema-field">blog_id</div><div class="schema-type">String</div><div class="schema-desc">블로그 식별자</div></div>
+        <div class="schema-card new"><div class="schema-field">login_id</div><div class="schema-type">String</div><div class="schema-desc">로그인 이메일/ID</div></div>
+        <div class="schema-card new"><div class="schema-field">cookie_path</div><div class="schema-type">String</div><div class="schema-desc">쿠키 파일 경로</div><div class="schema-example">./cookies/tistory_{blog_id}.json</div></div>
+        <div class="schema-card new"><div class="schema-field">cookie_updated_at</div><div class="schema-type">DateTime</div><div class="schema-desc">쿠키 마지막 갱신 시각. 만료 감지에 활용</div></div>
+        <div class="schema-card new"><div class="schema-field">is_active</div><div class="schema-type">Boolean</div><div class="schema-desc">계정 활성 여부</div></div>
+      </div>
+    </div>
+
+    <!-- contents -->
+    <div style="margin-bottom:28px">
+      <div style="font-size:13px; font-weight:700; color:#e65100; background:#fff3e0; padding:7px 14px; border-radius:8px; display:inline-block; margin-bottom:12px">📁 contents — 콘텐츠 파이프라인</div>
+      <div class="schema-grid">
+        <div class="schema-card"><div class="schema-field">id</div><div class="schema-type">String</div><div class="schema-desc">고유 ID</div></div>
+        <div class="schema-card"><div class="schema-field">keyword_id</div><div class="schema-type">String</div><div class="schema-desc">keywords 참조</div></div>
+        <div class="schema-card"><div class="schema-field">title</div><div class="schema-type">String</div><div class="schema-desc">글 제목 (h1). Tistory 발행 시 본문과 별도 입력 필드. collector Phase 1에서 저장</div></div>
+        <div class="schema-card"><div class="schema-field">status</div><div class="schema-type">Enum</div><div class="schema-desc">파이프라인 상태 전이 (위 ④ 참조)</div></div>
+        <div class="schema-card"><div class="schema-field">paragraph_blueprint</div><div class="schema-type">JSON</div><div class="schema-desc">단락별 구조·타입 + target_reader (persona / knowledge_level / primary_intent / reader_awareness)</div></div>
+        <div class="schema-card upd"><div class="schema-field">collection_context <span class="schema-badge upd">v22 신규</span></div><div class="schema-type">JSONB</div><div class="schema-desc">Phase 1-A 출력 원본 (collection_type, chunks, datalab_slope, reference_blogs). Phase 1-D에서 content_template.type 변경 시 Phase 1-B 재호출 재료로 사용</div></div>
+        <div class="schema-card"><div class="schema-field">normalized_sources</div><div class="schema-type">JSON</div><div class="schema-desc">단락별 정규화 팩트 배열</div></div>
+        <div class="schema-card"><div class="schema-field">summary_embedding</div><div class="schema-type">Vector</div><div class="schema-desc">embed(title + intro + short_conclusion). 자기잠식·자기표절 1차 스크리닝. collector Phase 1</div></div>
+        <div class="schema-card"><div class="schema-field">refined_post</div><div class="schema-type">HTML</div><div class="schema-desc">최종 HTML 글</div></div>
+        <div class="schema-card"><div class="schema-field">image_urls</div><div class="schema-type">JSON</div><div class="schema-desc">단락별 Unsplash URL 매핑</div></div>
+        <div class="schema-card"><div class="schema-field">system_check_result</div><div class="schema-type">JSON</div><div class="schema-desc">결정적 검증 항목별 결과</div></div>
+        <div class="schema-card"><div class="schema-field">plagiarism_overall</div><div class="schema-type">Float</div><div class="schema-desc">전체 유사도</div></div>
+        <div class="schema-card"><div class="schema-field">plagiarism_max_sentence</div><div class="schema-type">Float</div><div class="schema-desc">문장 단위 최대 유사도</div></div>
+        <div class="schema-card"><div class="schema-field">platform_url</div><div class="schema-type">String</div><div class="schema-desc">발행된 티스토리 URL</div></div>
+        <div class="schema-card"><div class="schema-field">published_at</div><div class="schema-type">DateTime</div><div class="schema-desc">실제 발행 시각</div></div>
+        <div class="schema-card"><div class="schema-field">publish_attempt_count</div><div class="schema-type">Int</div><div class="schema-desc">발행 재시도 횟수</div></div>
+        <div class="schema-card"><div class="schema-field">error_log</div><div class="schema-type">Text</div><div class="schema-desc">에러 메시지</div></div>
+        <div class="schema-card"><div class="schema-field">created_at</div><div class="schema-type">DateTime</div><div class="schema-desc">레코드 생성 시각</div></div>
+      </div>
+    </div>
+
+    <!-- config -->
+    <div style="margin-bottom:0">
+      <div style="font-size:13px; font-weight:700; color:#2c3e70; background:#e8eaf6; padding:7px 14px; border-radius:8px; display:inline-block; margin-bottom:12px">📁 config — 임계치·파라미터 런타임 관리 (총 <b style="color:#e53935">21개</b>)</div>
+      <div style="overflow-x:auto; margin-bottom:8px">
+      <table style="min-width:700px">
+        <thead><tr><th style="width:28%">key</th><th style="width:12%">v1 초기값</th><th>설명</th><th style="width:20%">조정 트리거</th></tr></thead>
+        <tbody>
+          <tr style="background:#ffebee"><td><code>keyword.pool_max_size</code> <span style="font-size:10px;background:#e53935;color:white;padding:1px 6px;border-radius:6px;margin-left:4px">v13 변경</span></td><td><b>50</b> <del style="color:#aaa;font-size:10px">200</del></td><td>키워드 풀 최대 보관 수. 초과 시 삭제 정책 실행</td><td>풀이 자주 꽉 차거나 거의 안 차면</td></tr>
+          <tr style="background:#ffebee"><td><code>keyword.pool_eviction_score_threshold</code> <span style="font-size:10px;background:#e53935;color:white;padding:1px 6px;border-radius:6px;margin-left:4px">v13 신규</span></td><td><b>45</b></td><td>풀 삭제 1순위 조건 — 부스러기 등급 상한. avg_score가 이 값 미만이면 삭제 후보</td><td>삭제가 너무 자주/거의 안 일어나면</td></tr>
+          <tr style="background:#ffebee"><td><code>keyword.pool_eviction_eval_count</code> <span style="font-size:10px;background:#e53935;color:white;padding:1px 6px;border-radius:6px;margin-left:4px">v13 신규</span></td><td><b>3</b></td><td>풀 삭제 1순위 조건 — 최소 평가 횟수. 이 값 이상 평가받은 키워드만 1순위 대상</td><td>초반에 삭제가 안 일어나면 낮춤</td></tr>
+          <tr><td><code>keyword.revival_days</code></td><td><b>30</b></td><td>평가된 키워드를 재평가 대상으로 올리기까지 최소 대기 일수. housekeeping 스캔 기준</td><td>재평가 결과가 첫 평가와 차이 없으면</td></tr>
+          <tr><td><code>keyword.reuse_days</code></td><td><b>180</b></td><td>동일 블로그에서 같은 황금 키워드 재사용 금지 기간</td><td>발행 후 SEO 데이터 보고 판단</td></tr>
+          <tr><td><code>keyword.similarity_cooldown_threshold</code></td><td><b>0.85</b></td><td>황금 키워드 후보 embedding vs 기발행 황금 키워드 embedding 비교 임계치 (어뷰징 회피)</td><td>쿨다운이 너무 자주/거의 안 걸리면</td></tr>
+          <tr><td><code>keyword.similarity_cooldown_days</code></td><td><b>3</b></td><td>유사도 초과 시 해당 키워드 선정 금지 기간</td><td>실제 계정 패턴 탐지 여부 보고</td></tr>
+          <tr style="background:#ffebee"><td><code>keyword.recent_density_window_days_short</code> <span style="font-size:10px;background:#e53935;color:white;padding:1px 6px;border-radius:6px;margin-left:4px">v14 변경</span></td><td><b>7</b> <del style="color:#aaa;font-size:10px">14</del></td><td>최근 발행 밀도 — 단기 창 (과포화 탐지, primary). 7일 급격한 과포화 탐지용</td><td>단기 트렌드 반응 속도 조정 시</td></tr>
+          <tr style="background:#ffebee"><td><code>keyword.recent_density_window_days_long</code> <span style="font-size:10px;background:#e53935;color:white;padding:1px 6px;border-radius:6px;margin-left:4px">v14 신규</span></td><td><b>30</b></td><td>최근 발행 밀도 — 장기 창 (월간 추이 참고용)</td><td>월간 추이 기준 변경 시</td></tr>
+          <tr><td><code>keyword.golden_threshold</code></td><td><b>코드 기본값 60</b></td><td>황금 키워드 선정 최소 점수 (100점 만점)</td><td>v1 첫 발행 데이터 쌓인 후</td></tr>
+          <tr style="background:#fff8e1"><td><code>keyword.seed_duplicate_threshold</code> <span style="font-size:10px;background:#f9a825;color:#333;padding:1px 6px;border-radius:6px;margin-left:4px">v11 신규</span></td><td><b>0.93</b></td><td>씨드 입력 시 유사도 이 값 이상이면 "이거 말씀하시나요?" 안내</td><td>안내가 너무 자주/거의 안 뜨면</td></tr>
+          <tr style="background:#f3e5f5"><td><code>keyword.irrelevant_filter_threshold</code> <span style="font-size:10px;background:#7b1fa2;color:white;padding:1px 6px;border-radius:6px;margin-left:4px">v15 신규</span></td><td><b>0.55</b></td><td>relKeyword 후보 중 씨드 임베딩과 유사도 이 값 미만이면 평가 제외 (무관 키워드 필터). 0.55 기준 10~20개/런 통과 예상</td><td>필터링이 너무 많거나 노이즈 통과 많으면 (ko-sroberta 실증 후 재보정)</td></tr>
+          <tr><td><code>collector.min_blogs</code></td><td><b>3</b></td><td>Phase 1 fallback 기준. 미달 시 상위 개념 재검색 → LLM 단독 + ⚠️</td><td>니치 키워드 비율 데이터 보고</td></tr>
+          <tr style="background:#fff8e1"><td><code>collector.similarity_warning_threshold</code> <span style="font-size:10px;background:#f9a825;color:#333;padding:1px 6px;border-radius:6px;margin-left:4px">v11 신규</span></td><td><b>0.75</b></td><td>collector Phase 1 summary_embedding 비교 경고 임계치. Slack 화면에 경고 → 사용자 판단</td><td>경고가 너무 자주/거의 안 뜨면</td></tr>
+          <tr><td><code>checker.plagiarism_overall_threshold</code></td><td><b>0.15</b></td><td>글 전체 표절 유사도 허용 상한</td><td>통과율 너무 낮거나 표절 누락 시</td></tr>
+          <tr><td><code>checker.plagiarism_sentence_threshold</code></td><td><b>0.35</b></td><td>문장 단위 최대 유사도 허용 상한</td><td>—</td></tr>
+          <tr><td><code>checker.min_char_count</code></td><td><b>1500</b></td><td>발행 가능 최소 글자 수</td><td>발행 글 품질 피드백 반영 시</td></tr>
+          <tr><td><code>publisher.daily_limit</code></td><td><b>2</b></td><td>계정당 하루 최대 발행 편수</td><td>어뷰징 탐지 신호 있으면 즉시 낮춤</td></tr>
+          <tr><td><code>publisher.min_draft_minutes</code></td><td><b>30</b></td><td>글 생성 완료 시각부터 발행까지 최소 대기 시간 (분)</td><td>—</td></tr>
+          <tr><td><code>publisher.similarity_cooldown_threshold</code></td><td><b>0.85</b></td><td>직전 발행 글과 유사도 이 값 이상이면 발행을 쿨다운 기간 후로 자동 지연</td><td>keyword.similarity_cooldown_threshold와 함께 조정</td></tr>
+          <tr><td><code>publisher.similarity_cooldown_days</code></td><td><b>3</b></td><td>연속 발행 유사도 초과 시 발행을 미루는 일수</td><td>keyword.similarity_cooldown_days와 함께 조정</td></tr>
+          <tr style="background:#fff3e0"><td><code>contents_maker.blogger_persona</code> <span style="font-size:10px;background:#e65100;color:white;padding:1px 6px;border-radius:6px;margin-left:4px">v16 신규</span></td><td><b>""</b> <span style="font-size:10px;color:#888">(최초 입력 필요)</span></td><td>블로거 1인칭 페르소나. llm_generated 단락(도입부·결말) 생성 시 컨텍스트 주입. AdSense AI 감지 대응 목적.</td><td>AdSense 심사 탈락 시 톤 재조정</td></tr>
+        </tbody>
+      </table>
+      </div>
+      <div class="info-box">
+        💡 값 조회 우선순위: <b>환경변수</b> &gt; <b>config 테이블</b> &gt; <b>코드 기본값</b> — 코드 수정 없이 파라미터 조정 가능<br>
+        <b style="color:#7b1fa2">v14 → v15</b>: <code>keyword.irrelevant_filter_threshold</code> (0.55) 신규 추가. 총 20개 → 21개<br>
+        <b style="color:#e65100">v15 → v16</b>: <code>contents_maker.blogger_persona</code> 신규 추가 (AdSense AI 감지 대응). 총 21개 → <b>22개</b>
+      </div>
+    </div>
+  </div>
+
+  <!-- ⑥ 임베딩 인프라 -->
+  <div style="margin-bottom:44px">
+    <div class="section-title">⑥ 임베딩 인프라 — 용도별 정리 (v11 전면 개정)</div>
+    <div style="overflow-x:auto">
+    <table style="min-width:860px">
+      <thead><tr>
+        <th style="width:20%">용도</th>
+        <th style="width:26%">비교 대상</th>
+        <th style="width:18%">실행 시점</th>
+        <th style="width:14%">저장 여부</th>
+        <th>임계치</th>
+      </tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>씨드 입력 중복 확인</strong><br><em style="font-size:10px">UX / 데이터 중복 방지</em></td>
+          <td>입력 씨드 임베딩(즉석) vs <code>keywords.embedding</code> 전체</td>
+          <td><span class="tag tag-ai">keyword_researcher</span> 씨드 입력 시</td>
+          <td><span class="tag tag-clr">❌ 별도 저장 없음</span></td>
+          <td><code>keyword.seed_duplicate_threshold</code><br><b>= 0.93</b></td>
+        </tr>
+        <tr style="background:#fff3e0">
+          <td><strong>어뷰징 쿨다운 체크</strong><br><em style="font-size:10px">계정 패턴 탐지</em></td>
+          <td>황금 키워드 후보 <code>keywords.embedding</code> vs 기발행 글의 황금 키워드 <code>keywords.embedding</code></td>
+          <td><span class="tag tag-ai">keyword_researcher</span> 황금 키워드 선정 시</td>
+          <td><span class="tag tag-clr">❌ 별도 저장 없음</span></td>
+          <td><code>keyword.similarity_cooldown_threshold</code><br><b>= 0.85</b></td>
+        </tr>
+        <tr style="background:#f5f3ff">
+          <td><strong>자기잠식 + 자기표절 1차</strong></td>
+          <td>새 글 <code>summary_embedding</code> vs 기존 모든 글 <code>summary_embedding</code></td>
+          <td><span class="tag tag-ai">collector Phase 1</span> 완료 후</td>
+          <td><span class="tag tag-ok">✅ 저장</span><br><code style="font-size:10px">contents.summary_embedding</code></td>
+          <td><code>collector.similarity_warning_threshold</code><br><b>= 0.75</b></td>
+        </tr>
+        <tr>
+          <td><strong>표절 검사 (외부 소스)</strong></td>
+          <td>refined_post 문장 vs 매핑된 original source 문장</td>
+          <td><span class="tag tag-dash">checker Stage 1</span></td>
+          <td><span class="tag tag-clr">❌ 저장 안 함</span><br>결과만 저장</td>
+          <td><code>checker.plagiarism_overall_threshold</code> = 0.15<br><code>checker.plagiarism_sentence_threshold</code> = 0.35</td>
+        </tr>
+        <tr style="background:#f5f3ff">
+          <td><strong>어뷰징 쿨다운 재확인</strong><br><em style="font-size:10px">다중 큐 대기 시나리오</em></td>
+          <td>발행 예정 글 <code>summary_embedding</code> vs 직전 발행 글 <code>summary_embedding</code></td>
+          <td><span class="tag" style="background:#e0f2f1;color:#00796b">publisher</span></td>
+          <td><span class="tag tag-clr">❌ 별도 저장 없음</span></td>
+          <td><code>publisher.similarity_cooldown_threshold</code><br><b>= 0.85</b></td>
+        </tr>
+      </tbody>
+    </table>
+    </div>
+  </div>
+
+  <!-- ⑦ 회피 규칙 체크 시점 -->
+  <div style="margin-bottom:44px">
+    <div class="section-title">⑦ 황금 키워드 회피 규칙 — 체크 시점 확정</div>
+    <div style="overflow-x:auto">
+    <table style="min-width:800px">
+      <thead><tr>
+        <th style="width:8%">규칙</th>
+        <th style="width:18%">회피 목적</th>
+        <th style="width:12%">적용 단위</th>
+        <th style="width:20%">임계치</th>
+        <th style="width:20%">체크 시점</th>
+        <th>비고</th>
+      </tr></thead>
+      <tbody>
+        <tr style="background:#fff3e0">
+          <td><strong>(a)</strong></td>
+          <td>어뷰징 회피<br><em style="font-size:10px">계정 패턴 탐지</em></td>
+          <td>account_id</td>
+          <td>embedding 비교. 유사도 ≥ 0.85 → 3일 쿨다운</td>
+          <td><span class="tag tag-ai">keyword_researcher</span><br><span class="tag" style="background:#e0f2f1;color:#00796b">publisher</span> (재확인)</td>
+          <td>다중 큐 대기 → 한꺼번에 승인 시 A→B→C 연속 발행 구멍 대응</td>
+        </tr>
+        <tr>
+          <td><strong>(b)</strong></td>
+          <td>자기 잠식</td>
+          <td>blog_id</td>
+          <td>같은 황금 키워드 180일 내 재사용 금지</td>
+          <td><span class="tag tag-ai">keyword_researcher</span> 에서만</td>
+          <td>keyword_usages in_progress로 중복 진입 차단</td>
+        </tr>
+        <tr style="background:#f5f5f5">
+          <td><strong>(c)</strong></td>
+          <td>외부 포화</td>
+          <td>키워드 자체</td>
+          <td>점수 모델에 반영</td>
+          <td><em style="font-size:10px">별도 로직 없음</em></td>
+          <td>최근 7일 발행 밀도 (primary) → Blog 경쟁도 감점</td>
+        </tr>
+        <tr>
+          <td><strong>(d)</strong></td>
+          <td>다양성 (UX)</td>
+          <td>blog_id</td>
+          <td>7일 5편 중 유사도 ≥ 0.8 그룹 3편 이상이면 경고</td>
+          <td><b style="color:#c62828">v1 미구현</b><br>도입 시 → <span class="tag" style="background:#e0f2f1;color:#00796b">publisher</span></td>
+          <td>YAGNI 원칙으로 v1 제외</td>
+        </tr>
+      </tbody>
+    </table>
+    </div>
+  </div>
+
+  <!-- ⑧ DB 업데이트 타임라인 -->
+  <div style="margin-bottom:44px">
+    <div class="section-title">⑧ DB 업데이트 타임라인 — 모듈별 시점</div>
+    <div style="overflow-x:auto">
+    <table style="min-width:820px">
+      <thead><tr>
+        <th style="width:18%">시점 (이벤트)</th>
+        <th style="width:16%">담당 모듈</th>
+        <th style="width:28%">업데이트 내용</th>
+        <th style="width:14%">status 전이</th>
+        <th>비고</th>
+      </tr></thead>
+      <tbody>
+        <tr style="background:#fff0f0">
+          <td><b>🧹 실행 시작 housekeeping</b></td>
+          <td><span class="tag tag-ai">keyword_researcher</span></td>
+          <td>revival_days 초과 키워드 재평가 → keyword_evaluations 기록 → 저품질 archived → pool 초과 시 삭제 정책</td>
+          <td><span style="color:#aaa; font-size:10px">—</span></td>
+          <td>매 실행 시 자동. 별도 스케줄러 불필요 (v13 확정)</td>
+        </tr>
+        <tr>
+          <td>씨드 확장 + 평가</td>
+          <td><span class="tag tag-ai">keyword_researcher</span></td>
+          <td>keywords 적재<br>keyword_evaluations 기록</td>
+          <td><span style="color:#aaa; font-size:10px">contents 없음</span></td>
+          <td>session_id로 묶어 모델 검증용 비교 가능</td>
+        </tr>
+        <tr style="background:#e8f5e9">
+          <td><b>황금 키워드 선정</b></td>
+          <td><span class="tag tag-ai">keyword_researcher</span></td>
+          <td>keyword_evaluations.result = selected<br>keyword_usages <code>in_progress</code> 생성</td>
+          <td><span style="color:#aaa; font-size:10px">contents 없음</span></td>
+          <td>in_progress로 자기잠식 중복 진입 차단</td>
+        </tr>
+        <tr style="background:#fff0f0">
+          <td><b>⚠️ 파이프라인 중단</b><br><span style="font-size:10px;color:#c62828">사유 불문</span></td>
+          <td><span class="tag tag-new">중단 발생 모듈</span></td>
+          <td>keyword_usages.<code>status = failed</code><br><em style="font-size:10px">published_at = null 유지</em></td>
+          <td>—</td>
+          <td>in_progress 잠금 즉시 해제. 180일 카운트 없음. 재선택 사용자 결정</td>
+        </tr>
+        <tr style="background:#f5f3ff">
+          <td><b>구조 확정</b></td>
+          <td><span class="tag" style="background:#ede9ff;color:#5b4fcf">collector</span></td>
+          <td>contents 레코드 신규 생성<br>title · paragraph_blueprint(target_reader 포함) · collection_context · summary_embedding</td>
+          <td>→ <code>구조확정대기</code></td>
+          <td>사용자 구조 거절 시 레코드 없음</td>
+        </tr>
+        <tr>
+          <td><b>팩트 수집 완료</b></td>
+          <td><span class="tag" style="background:#ede9ff;color:#5b4fcf">collector</span></td>
+          <td>normalized_sources</td>
+          <td><code>구조확정대기</code> → <code>생성대기</code></td>
+          <td>fact_based 단락만 처리</td>
+        </tr>
+        <tr style="background:#fafbff">
+          <td><b>글 생성 완료</b></td>
+          <td><span class="tag tag-ai">contents_maker</span></td>
+          <td>refined_post · image_urls · error_log</td>
+          <td><code>생성대기</code> → <code>시스템검증대기</code></td>
+          <td>이미지 오류 소프트, LLM 오류 실패</td>
+        </tr>
+        <tr>
+          <td><b>시스템 검증 완료</b></td>
+          <td><span class="tag tag-dash">checker</span></td>
+          <td>system_check_result<br>plagiarism_overall / max_sentence</td>
+          <td><code>시스템검증대기</code> → <code>사용자검토중</code></td>
+          <td>Tier A 탈락 / 표절 초과 시 → 실패</td>
+        </tr>
+        <tr style="background:#fafbff">
+          <td><b>사용자 승인</b></td>
+          <td><span class="tag tag-user">checker</span></td>
+          <td>refined_post (수정분 반영)</td>
+          <td><code>사용자검토중</code> → <code>승인완료</code></td>
+          <td>거절/수정 → 케이스별 롤백</td>
+        </tr>
+        <tr>
+          <td><b>발행 완료</b></td>
+          <td><span class="tag tag-ok">publisher</span></td>
+          <td>platform_url · published_at<br>keyword_usages.published_at 갱신<br>keyword_usages.status = published</td>
+          <td><code>승인완료</code> → <code>발행완료</code></td>
+          <td>Playwright headed 모드</td>
+        </tr>
+      </tbody>
+    </table>
+    </div>
+  </div>
+
+  <!-- ⑨ 키워드 점수 모델 -->
+  <div style="margin-bottom:44px">
+    <div class="section-title">⑨ 키워드 점수 모델 — 두 프로필 운용 <span style="font-size:11px; background:#e53935; color:white; padding:2px 8px; border-radius:8px; margin-left:6px">v14 전면 개정</span></div>
+
+    <!-- 변경 요약 배너 -->
+    <div style="background:#fff8e1; border-left:4px solid #f9a825; border-radius:6px; padding:10px 16px; font-size:11px; color:#555; line-height:2; margin-bottom:20px">
+      <b style="color:#e65100">v14 변경 요약</b><br>
+      🔴 <del>DataLab 트렌드 40점</del> → 🟢 <b>월 검색량 30점</b> (Search Ad API 절대값) + <b>발행 추세 10점</b> (DataLab slope, 추가 호출 없음)<br>
+      🔴 <del>Google Trends 10점</del> (pytrends 2025-04 archived, 구글 트래픽 비중 0.1%) → DataLab slope로 통합<br>
+      🔵 Blog 경쟁도 최근 밀도 기준: <del>14일</del> → <b>7일</b> (primary, 단기 과포화 탐지) + 30일 (월간 추이 참고)
+    </div>
+
+    <div class="card-grid-2">
+      <div class="card">
+        <div class="card-header" style="background:#1565C0">⚖️ DEFAULT 프로필 — 일반 키워드</div>
+        <div class="card-body">
+          <div class="score-bar-wrap">
+            <div class="score-bar" style="flex:30; background:#1565C0">월 검색량<br><span style="font-size:9px">Search Ad API</span><br>30점</div>
+            <div class="score-bar" style="flex:15; background:#26a69a">Blog 총량<br>15점</div>
+            <div class="score-bar" style="flex:15; background:#00897B">최근 밀도<br><span style="font-size:9px">7일 primary</span><br>15점</div>
+            <div class="score-bar" style="flex:20; background:#f9a825; color:#333">상업의도<br>20점</div>
+            <div class="score-bar" style="flex:10; background:#546e7a">발행추세<br><span style="font-size:9px">DataLab slope</span><br>10점</div>
+          </div>
+          <div style="font-size:10.5px; color:#555; line-height:1.9; margin-top:10px">
+            <b>① 월 검색량 (30점)</b>: PC+Mobile 합산 절대값. 50,000↑=30점 / 10,000↑=22점 / 3,000↑=15점 / 500↑=8점 / 미만=2점<br>
+            <b>② Blog 총량 (15점)</b>: Naver Blog API total. 5,000미만=15점 → 500,000↑=0점<br>
+            <b>③ 최근 밀도 (15점)</b>: 7일 기준. 10미만=15점 → 1,000↑=0점<br>
+            <b>④ 상업적 의도 (20점)</b>: compIdx + 쇼핑 검색수 + 패턴 룰 3단계 조합<br>
+            <b>⑤ 발행 추세 (10점)</b>: DataLab 8주 slope. +5↑=10점 / +1↑=8점 / 보합=5점 / -3미만=0점
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header" style="background:#5B4FCF">🧪 LONGTAIL 프로필 — 연금술 전용</div>
+        <div class="card-body">
+          <div class="score-bar-wrap">
+            <div class="score-bar" style="flex:15; background:#546e7a">월 검색량<br><span style="font-size:9px">Search Ad API</span><br>15점 ↓</div>
+            <div class="score-bar" style="flex:22; background:#26a69a">Blog 총량<br>22.5점</div>
+            <div class="score-bar" style="flex:23; background:#00897B">최근 밀도<br>22.5점</div>
+            <div class="score-bar" style="flex:25; background:#f9a825; color:#333">상업의도<br>25점</div>
+            <div class="score-bar" style="flex:10; background:#546e7a">발행추세<br>10점</div>
+          </div>
+          <div style="font-size:10.5px; color:#555; line-height:1.9; margin-top:10px">
+            Blog 경쟁도 총 45점 = 총량 22.5 + 최근 밀도 22.5 — 경쟁 없는 니치 키워드 발굴<br>
+            월 검색량 15점 ↓ (롱테일은 절대 트렌드 낮아도 OK)<br>
+            상업적 의도 25점 ↑ (구체적일수록 의도 명확)
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- API 호출 흐름 -->
+    <div style="margin-top:16px; background:#f8f9fb; border-radius:8px; padding:14px 18px; font-size:11.5px; color:#333; line-height:2.2">
+      <b style="color:#2c3e70">📡 API 호출 흐름 (키워드 1개 평가 시 총 4회)</b><br>
+      <span style="font-family:monospace; font-size:11px">
+        ① Search Ad API /keywordstool → monthly_search_volume + comp_idx + relKeyword 목록<br>
+        ② Blog Search /blog → blog_total_count (sort=sim, display=1)<br>
+        ③ Blog Search /blog → blog_recent_7d_count + blog_recent_30d_count (날짜 필터)<br>
+        ④ DataLab /datalab/v1/search → datalab_slope 계산용 8주 시계열<br>
+        (⑤ Shopping Search /shop → commercial_intent 보조, 선택적)
+      </span><br>
+      ⚠️ <b>Search Ad API 제약</b>: hintKeywords에 공백 포함 구문 불가 → 씨드 단어 분해 필요 (오픈 이슈 #3)
+    </div>
+  </div>
+
+  <!-- ⑩ 롤백 시나리오 -->
+  <div style="margin-bottom:44px">
+    <div class="section-title">⑩ 사용자검토중 → 수정 요청 롤백 시나리오</div>
+    <div class="card-grid-3">
+      <div class="card">
+        <div class="rb-header rewrite">케이스 1 — 키워드 불일치</div>
+        <div class="rb-body">
+          <div class="rb-label">원인</div><div class="rb-value">글 방향이 타겟 키워드와 다름</div>
+          <div class="rb-flow">사용자검토중 → <b>생성대기</b><br>refined_post 초기화 / image_urls 초기화<br>normalized_sources 유지</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="rb-header rewrite">케이스 2 — SEO / 품질 오류</div>
+        <div class="rb-body">
+          <div class="rb-label">원인</div><div class="rb-value">H태그 누락, 글자수 부족 등</div>
+          <div class="rb-flow">사용자검토중 → <b>생성대기</b><br>refined_post 초기화<br>normalized_sources · image_urls 유지 가능</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="rb-header img">케이스 3 — 이미지 불일치</div>
+        <div class="rb-body">
+          <div class="rb-label">원인</div><div class="rb-value">이미지가 글 내용과 무관</div>
+          <div class="rb-flow">이미지 재검색만 실행<br>refined_post 본문 유지<br>img 태그만 교체 → 검토중 재전송</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ⑪ Collector fallback -->
+  <div style="margin-bottom:44px">
+    <div class="section-title">⑪ Collector Phase 1 fallback — 상위 블로그 부족 시 <span style="font-size:11px; background:#e53935; color:white; padding:2px 8px; border-radius:8px; margin-left:6px">v19 수직 확장 Level 1 제한</span></div>
+    <div style="overflow-x:auto">
+    <table style="min-width:700px">
+      <thead><tr><th style="width:12%">케이스</th><th style="width:25%">조건</th><th style="width:28%">전략</th><th>처리</th></tr></thead>
+      <tbody>
+        <tr style="background:#e8f5e9"><td><b>정상</b></td><td>필터 통과 블로그 ≥ 5개</td><td>—</td><td>✅ 정상 진행</td></tr>
+        <tr style="background:#e3f2fd"><td><b>수평 분해</b></td><td>블로그 &lt; 5개<br>+ datalab_slope &gt; 0 (rising)</td><td>LLM이 키워드를 의미 청크로 분해 → 청크별 독립 수집 → source_chunk 태깅 → Phase 1-B 공통성 합성</td><td>Phase 1-B 프롬프트에 "rising keyword freshness" 컨텍스트 주입</td></tr>
+        <tr style="background:#fff8e1"><td><b>수직 확장</b></td><td>블로그 &lt; 5개<br>+ datalab_slope ≈ 0 (에버그린)</td><td>앞 청크 1개 제거 → 상위 키워드 재검색 (최대 1단계)<br><span style="font-size:11px; color:#E65100">공식: min(1, 청크수-1)</span></td><td>청크 1개: 즉시⚠️ / 청크 2개 이상: Level 1만 허용<br><span style="font-size:11px; color:#666">⚠️ 환각 최소화 원칙 — Level 2 제거 (v19)</span></td></tr>
+        <tr style="background:#ffebee"><td><b>⚠️ 중단</b></td><td>Level 1 이후에도 min_blogs 미달</td><td>파이프라인 중단</td><td>Slack 알림(키워드·시도이력·권고조치) + keyword_usages.status=failed</td></tr>
+      </tbody>
+    </table>
+    </div>
+    <div style="margin-top:10px; padding:10px 14px; background:#FFF8E1; border-left:3px solid #FB8C00; border-radius:0 6px 6px 0; font-size:12px; color:#555;">
+      <b style="color:#E65100">v19 변경 이유:</b> Level 2는 상황 맥락 청크(예: "야간 홈트")까지 제거되어 Phase 1-B가 해당 단락을 레퍼런스 없이 창작하는 환각 위험 존재. Level 1은 타겟 독자 맥락 희석 수준으로 Phase 1-B가 original_keyword 참조로 보완 가능. v1 운영 후 성과 데이터 기반으로 재검토 예정.
+    </div>
+  </div>
+
+  <!-- ⑫ Phase 1-D Slack UX -->
+  <div style="margin-bottom:44px">
+    <div class="section-title">⑫ Phase 1-D — 사용자 Slack 메시지 UX <span style="font-size:11px; background:#e53935; color:white; padding:2px 8px; border-radius:8px; margin-left:6px">v18 갱신</span></div>
+    <div class="card-grid-2" style="margin-bottom:20px">
+      <div class="card">
+        <div class="card-header" style="background:#2c3e70">📩 기본 메시지 (항상 전송)</div>
+        <div class="card-body">
+          <div style="font-family:monospace; font-size:11px; background:#f8f9fb; border-radius:6px; padding:10px 14px; line-height:2; color:#333">
+            📋 구조 초안이 완성되었습니다 — [키워드]<br><br>
+            제목: {title}<br>
+            대상 독자: {persona} / {level} / {intent}<br>
+            구조: {content_template.type} · 느낌: {tone_style.voice}<br>
+            템플릿 흐름: {content_template.flow 요약}<br>
+            결말: {type} / {direction}<br><br>
+            단락 구성 ({n}개):<br>
+            &nbsp; p1 [llm_generated] — {h2}<br>
+            &nbsp; p2 [fact_based] — {h2} ...<br><br>
+            ✅ 승인 &nbsp;|&nbsp; 🔗 <span style="color:#4f6ef7">대시보드 열기</span>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header" style="background:#e65100">⚠️ 조건부 추가 — similarity ≥ 0.75 시에만</div>
+        <div class="card-body">
+          <div style="font-size:11px; color:#555; line-height:1.9; margin-bottom:10px">유사한 기존 글 발견 시 차별화를 위해 아래 파라미터 수정 선택지 추가 표시</div>
+          <div style="font-size:11.5px; font-weight:700; color:#333; margin-bottom:6px">수정 가능 파라미터 2종 (Slack) — 나머지는 대시보드:</div>
+          <div style="font-size:11px; line-height:2; color:#444">
+            1️⃣ <b>content_template.type</b>: problem_solving / comparison / data_analysis / story<br>
+            2️⃣ <b>tone_style.voice</b>: friendly / professional / analytical<br>
+            (세밀 편집 — emotion, ending, flow 등은 대시보드에서)<br>
+            4️⃣ <b>template</b>: A / B / C / D
+          </div>
+          <div style="margin-top:10px; font-size:10.5px; background:#f5f3ff; border-radius:6px; padding:8px 12px; line-height:1.9">
+            🅐 문제해결형: 문제제기→원인→해결→사례<br>
+            🅑 비교형: A vs B→기준→추천<br>
+            🅒 데이터분석형: 통계→해석→인사이트→전략<br>
+            🅓 스토리형: 경험→문제→깨달음→적용
+          </div>
+          <div style="margin-top:8px; font-size:10px; color:#888">수정 후 → Phase 1-B 재호출 (동일 압축 데이터 재사용, Firecrawl 추가 없음)</div>
+        </div>
+      </div>
+    </div>
+    <div style="background:#f0f3ff; border-radius:8px; padding:10px 16px; font-size:11px; color:#3949ab; line-height:1.9">
+      💡 <b>설계 의도</b>: 유사도가 낮으면(차별화 문제 없음) 수정 선택지를 표시하지 않아 의사결정 피로 제거. 실제로 차별화가 필요한 케이스에만 선택 옵션을 좁혀서 제공. 세밀한 수정은 대시보드 링크로 유도.
+    </div>
+  </div>
+
+  <!-- ⑬ 시크릿 관리 -->
+  <div style="margin-bottom:44px">
+    <div class="section-title">⑬ 시크릿 관리 3계층 (v7 확정)</div>
+    <div class="card-grid-3">
+      <div class="card">
+        <div class="card-header" style="background:#1565C0">🔐 계층 1 — 앱 시크릿</div>
+        <div class="card-body">
+          <div style="font-weight:700; margin-bottom:8px">Bitwarden → .env (수동 복사)</div>
+          <div style="font-size:11px; color:#555; line-height:1.8">Naver API · Firecrawl · Unsplash · Slack Bot</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header" style="background:#00796B">🍪 계층 2 — 티스토리 계정</div>
+        <div class="card-body">
+          <div style="font-weight:700; margin-bottom:8px">accounts 테이블 + 쿠키 파일</div>
+          <div style="font-size:11px; color:#555; line-height:1.8">만료 시 v1: Slack 알림 → 수동 재로그인 / v2: 자동 재로그인 검토</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header" style="background:#5B4FCF">⚙️ 계층 3 — 운영 파라미터</div>
+        <div class="card-body">
+          <div style="font-weight:700; margin-bottom:8px">config 테이블 (<b style="color:#f3e5f5">24개</b> 항목)</div>
+          <div style="font-size:11px; color:#555; line-height:1.8">dot notation · 런타임 변경 가능 · 조회 우선순위: 환경변수 &gt; config &gt; 코드</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ⑭ I/O 명세 -->
+  <div class="io-section">
+    <div class="section-title">⑭ 입력값 → 처리 → 출력값 명세서</div>
+    <table style="min-width:820px">
+      <thead><tr>
+        <th style="width:12%">모듈</th>
+        <th style="width:27%">INPUT</th>
+        <th style="width:27%">PROCESS 핵심</th>
+        <th style="width:34%">OUTPUT / DB 변경</th>
+      </tr></thead>
+      <tbody>
+        <tr>
+          <td><b>keyword_researcher</b></td>
+          <td><span class="tag tag-user">사용자</span> 씨드 키워드 또는 <code style="font-size:10px">--recommend</code></td>
+          <td>🧹 housekeeping (이물질 스캔 포함) → 씨드 중복 확인 (Path A: 재평가 / Path B: relKeyword 확장) → 무관 키워드 필터 (threshold 0.55) → 🚨하드컷 3종(검색량&lt;500 / slope&lt;0 / 블로그수&lt;30) → DEFAULT/LONGTAIL 점수화 → 회피 규칙 (a)(b) 체크 → Rank UI TOP 5</td>
+          <td>황금 키워드 1개<br>📦 keywords 적재<br>📦 keyword_evaluations 기록<br>📦 keyword_usages in_progress 생성</td>
+        </tr>
+        <tr style="background:#f5f3ff">
+          <td><b>collector</b><br>Phase 1-A/B/D</td>
+          <td><span class="tag tag-ai">AI</span> golden_keyword + raw_signals<br><em style="font-size:10px">(monthly_search_volume, datalab_slope)</em></td>
+          <td>1-A: Naver webdoc+Serper 각 5개 → Pre/Post 필터 → weight태깅 → H2압축 → collection_context 저장<br>1-B: LLM blueprint 생성 + content_template(type+flow) → summary_embedding<br>1-D: Slack 기본메시지 + 유사도≥0.75 시 2종 수정 선택지(content_template.type / tone_style.voice)</td>
+          <td>📦 contents 신규 생성 → <code>구조확정대기</code></td>
+        </tr>
+        <tr>
+          <td><b>collector</b><br>Phase 2-A/B</td>
+          <td>확정된 paragraph_blueprint</td>
+          <td>2-A: h2_subtitle+core_message+assigned_keywords 조합 쿼리 → 뉴스/매거진/칼럼 검색<br>2-B: Firecrawl ×3~4 → 사실·수치만 추출 (단락당 다중 소스 허용, source_url per fact)</td>
+          <td>📦 normalized_sources → <code>생성대기</code></td>
+        </tr>
+        <tr style="background:#f5f3ff">
+          <td><b>contents_maker</b></td>
+          <td>paragraph_blueprint · normalized_sources · Unsplash URL</td>
+          <td>fact_based: 팩트 컨텍스트 → 자연문 / llm_generated: 자유 생성. 이미지·글 병렬</td>
+          <td>📦 refined_post (HTML) · image_urls → <code>시스템검증대기</code></td>
+        </tr>
+        <tr>
+          <td><b>checker</b> Stage 1</td>
+          <td>refined_post · image_urls · paragraph_blueprint</td>
+          <td>Tier A 결정적 검증 (토큰 0) → Tier B 표절 검사</td>
+          <td>📦 system_check_result · plagiarism_* → <code>사용자검토중</code></td>
+        </tr>
+        <tr style="background:#f5f3ff">
+          <td><b>checker</b> Stage 2</td>
+          <td>Slack 미리보기 + 검증 결과 · 사용자 수정</td>
+          <td>대시보드 인라인 편집 → 승인 / 수정 / 거절</td>
+          <td>📦 refined_post (수정분) → <code>승인완료</code> 또는 롤백</td>
+        </tr>
+        <tr>
+          <td><b>publisher</b></td>
+          <td>최종 refined_post · accounts 테이블</td>
+          <td>정책 게이트 → Playwright headed Tistory 발행. (a) 쿨다운 재확인</td>
+          <td>📦 platform_url · published_at<br>📦 keyword_usages.published_at 갱신 → <code>발행완료</code></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p style="text-align:center; color:#aaa; font-size:11px; margin-top:40px; padding-bottom:24px">
+    O.S.M.U 프로젝트 | v16 기준 — 2026-05-12 갱신 | Google CSE 제거, 블로거 페르소나 도입, AdSense AI 감지 대응, checker Stage 2 필수 검토, config 22개
+  </p>
+
+</div>
+</body>
+</html>

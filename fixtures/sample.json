@@ -1,0 +1,49 @@
+{
+  "source_id": "sample-001",
+  "revision": "r1",
+  "title": "O.S.M.U 블로그 입력 확인용 샘플",
+  "blocks": [
+    {
+      "id": "h2-1",
+      "type": "heading",
+      "text": "첫 번째 확인: 글의 순서"
+    },
+    {
+      "id": "p-1",
+      "type": "paragraph",
+      "text": "이 글은 블로그 편집기의 입력과 저장 기능을 확인하기 위한 샘플입니다. 같은 내용을 세 플랫폼에 옮긴 뒤 문단 순서와 표현을 비교합니다."
+    },
+    {
+      "id": "list-1",
+      "type": "list",
+      "items": [
+        "제목과 소제목이 유지되는지 확인합니다.",
+        "이미지가 지정된 문단 뒤에 있는지 확인합니다.",
+        "저장한 글을 다시 열어 같은 내용인지 확인합니다."
+      ]
+    },
+    {
+      "id": "image-1",
+      "type": "image",
+      "asset": "sample.png",
+      "alt": "청록색 바탕과 주황색 사각형으로 구성한 테스트 이미지",
+      "caption": "O.S.M.U 내부 생성 테스트 이미지"
+    },
+    {
+      "id": "h2-2",
+      "type": "heading",
+      "text": "두 번째 확인: 링크와 저장"
+    },
+    {
+      "id": "p-2",
+      "type": "paragraph",
+      "text": "입력이 끝나면 초안으로 저장합니다. 편집기를 다시 열어 이미지와 문단이 유지되는지 확인한 뒤 결과를 기록합니다."
+    },
+    {
+      "id": "link-1",
+      "type": "link",
+      "text": "기존 O.S.M.U 저장소",
+      "url": "https://github.com/O-S-M-U/One-Source-Multi-Use"
+    }
+  ]
+}

@@ -1,0 +1,247 @@
+schema_version: 1
+updated_at: "2026-09-09T00:00:00+09:00"
+source_plan: docs/planning/OSMU_V2_WORK_ORDER.md
+completion_gate: module_spec_traceability_100_percent
+
+statuses:
+  - planned
+  - ready
+  - claimed
+  - working
+  - pr
+  - review
+  - verified
+  - done
+  - blocked
+  - decision_required
+  - cancelled
+
+tasks:
+  - id: "0.1"
+    title: 기준 문서 원본 고정·버전 규칙 확정
+    status: ready
+    assignee: null
+    agent: null
+    dependencies: []
+    estimated_tokens_low: 15000
+    estimated_tokens_high: 25000
+    estimated_hours_low: 1
+    estimated_hours_high: 2
+    recommended_model: gpt-5.6-terra
+    reasoning_effort: low
+    allowed_paths:
+      - docs/requirements/**
+      - docs/decisions/**
+      - docs/coordination/**
+    shared_paths:
+      - docs/baseline/**
+    branch: null
+    pr: null
+    requirements: []
+    evidence: []
+
+  - id: "0.2"
+    title: MODULE_SPEC 전 요구사항 원자화
+    status: planned
+    assignee: null
+    agent: null
+    dependencies: ["0.1"]
+    estimated_tokens_low: 45000
+    estimated_tokens_high: 65000
+    estimated_hours_low: 4
+    estimated_hours_high: 6
+    recommended_model: gpt-5.6-terra
+    reasoning_effort: medium
+    allowed_paths:
+      - docs/requirements/**
+      - docs/progress/**
+    shared_paths:
+      - docs/baseline/**
+    branch: null
+    pr: null
+    requirements: []
+    evidence: []
+
+  - id: "0.3"
+    title: 워크플로우와 명세 교차 대조
+    status: planned
+    assignee: null
+    agent: null
+    dependencies: ["0.2"]
+    estimated_tokens_low: 30000
+    estimated_tokens_high: 45000
+    estimated_hours_low: 3
+    estimated_hours_high: 5
+    recommended_model: gpt-6-astra
+    reasoning_effort: medium
+
+  - id: "0.4"
+    title: 2단계 다중 채널 영향 분석
+    status: planned
+    assignee: null
+    agent: null
+    dependencies: ["0.3"]
+    estimated_tokens_low: 25000
+    estimated_tokens_high: 40000
+    estimated_hours_low: 3
+    estimated_hours_high: 4
+    recommended_model: gpt-6-astra
+    reasoning_effort: high
+
+  - id: "0.5"
+    title: 미결 사항 결정·MODULE_SPEC v2 및 워크플로우 확정
+    status: planned
+    assignee: null
+    agent: null
+    dependencies: ["0.3", "0.4"]
+    estimated_tokens_low: 35000
+    estimated_tokens_high: 55000
+    estimated_hours_low: 4
+    estimated_hours_high: 7
+    recommended_model: gpt-6-astra
+    reasoning_effort: high
+
+  - id: "1"
+    title: 외부 플랫폼 사전 검증
+    status: planned
+    assignee: null
+    agent: null
+    dependencies: ["0.1"]
+    child_tasks: ["1.1", "1.2", "1.3", "1.4", "1.5"]
+    estimated_tokens_low: 135000
+    estimated_tokens_high: 210000
+    estimated_hours_low: 13
+    estimated_hours_high: 22
+    recommended_model: mixed
+    reasoning_effort: medium_to_high
+
+  - {id: "1.1", parent: "1", title: "티스토리 최소 검증", status: planned, assignee: null, agent: null, dependencies: ["0.1"], estimated_tokens_low: 30000, estimated_tokens_high: 45000, estimated_hours_low: 3, estimated_hours_high: 5, recommended_model: gpt-5.6-sol, reasoning_effort: medium}
+  - {id: "1.2", parent: "1", title: "워드프레스 최소 검증", status: planned, assignee: null, agent: null, dependencies: ["0.1"], estimated_tokens_low: 35000, estimated_tokens_high: 55000, estimated_hours_low: 3, estimated_hours_high: 6, recommended_model: gpt-5.6-sol, reasoning_effort: high}
+  - {id: "1.3", parent: "1", title: "네이버 블로그 최소 검증", status: planned, assignee: null, agent: null, dependencies: ["0.1"], estimated_tokens_low: 40000, estimated_tokens_high: 65000, estimated_hours_low: 4, estimated_hours_high: 7, recommended_model: gpt-5.6-sol, reasoning_effort: high}
+  - {id: "1.4", parent: "1", title: "Slack 메시지 생명주기 검증", status: planned, assignee: null, agent: null, dependencies: ["0.1"], estimated_tokens_low: 15000, estimated_tokens_high: 25000, estimated_hours_low: 1, estimated_hours_high: 2, recommended_model: gpt-5.6-terra, reasoning_effort: medium}
+  - {id: "1.5", parent: "1", title: "플랫폼 능력·제약 결정표", status: planned, assignee: null, agent: null, dependencies: ["1.1", "1.2", "1.3", "1.4"], estimated_tokens_low: 15000, estimated_tokens_high: 20000, estimated_hours_low: 2, estimated_hours_high: 2, recommended_model: gpt-6-astra, reasoning_effort: low}
+
+  - id: "2"
+    title: 재사용 가능한 공통 골격
+    status: planned
+    assignee: null
+    agent: null
+    dependencies: ["0.5", "1.5"]
+    child_tasks: ["2.1", "2.2", "2.3", "2.4"]
+    estimated_tokens_low: 145000
+    estimated_tokens_high: 220000
+    estimated_hours_low: 14
+    estimated_hours_high: 22
+    recommended_model: mixed
+    reasoning_effort: medium_to_high
+
+  - {id: "2.1", parent: "2", title: "공통 도메인·데이터 계약 설계", status: planned, assignee: null, agent: null, dependencies: ["0.5", "1.5"], estimated_tokens_low: 45000, estimated_tokens_high: 65000, estimated_hours_low: 4, estimated_hours_high: 6, recommended_model: gpt-6-astra, reasoning_effort: high}
+  - {id: "2.2", parent: "2", title: "DB·계정별 키워드 풀·상태 전이 확정", status: planned, assignee: null, agent: null, dependencies: ["2.1"], estimated_tokens_low: 40000, estimated_tokens_high: 60000, estimated_hours_low: 4, estimated_hours_high: 6, recommended_model: gpt-6-astra, reasoning_effort: high}
+  - {id: "2.3", parent: "2", title: "모듈·어댑터 인터페이스와 오류 계약", status: planned, assignee: null, agent: null, dependencies: ["2.1", "2.2"], estimated_tokens_low: 35000, estimated_tokens_high: 55000, estimated_hours_low: 3, estimated_hours_high: 6, recommended_model: gpt-5.6-sol, reasoning_effort: high}
+  - {id: "2.4", parent: "2", title: "설정·시크릿·관측·비용 규칙", status: planned, assignee: null, agent: null, dependencies: ["2.2", "2.3"], estimated_tokens_low: 25000, estimated_tokens_high: 40000, estimated_hours_low: 3, estimated_hours_high: 4, recommended_model: gpt-5.6-sol, reasoning_effort: medium}
+
+  - id: "3"
+    title: 키워드·Collector 공통 코어
+    status: planned
+    assignee: null
+    agent: null
+    dependencies: ["2"]
+    child_tasks: ["3.1", "3.2", "3.3", "3.4"]
+    estimated_tokens_low: 225000
+    estimated_tokens_high: 350000
+    estimated_hours_low: 22
+    estimated_hours_high: 35
+    recommended_model: mixed
+    reasoning_effort: high
+
+  - {id: "3.1", parent: "3", title: "keyword_researcher 구현·보완", status: planned, assignee: null, agent: null, dependencies: ["2.4"], estimated_tokens_low: 80000, estimated_tokens_high: 120000, estimated_hours_low: 8, estimated_hours_high: 12, recommended_model: gpt-5.6-sol, reasoning_effort: high}
+  - {id: "3.2", parent: "3", title: "계정별 keyword_pool와 재평가", status: planned, assignee: null, agent: null, dependencies: ["3.1"], estimated_tokens_low: 35000, estimated_tokens_high: 55000, estimated_hours_low: 3, estimated_hours_high: 6, recommended_model: gpt-5.6-sol, reasoning_effort: medium}
+  - {id: "3.3", parent: "3", title: "collector Phase 1 구현·보완", status: planned, assignee: null, agent: null, dependencies: ["2.4", "3.1"], estimated_tokens_low: 65000, estimated_tokens_high: 100000, estimated_hours_low: 6, estimated_hours_high: 10, recommended_model: gpt-5.6-sol, reasoning_effort: high}
+  - {id: "3.4", parent: "3", title: "collector Phase 2와 근거 묶음", status: planned, assignee: null, agent: null, dependencies: ["3.3"], estimated_tokens_low: 45000, estimated_tokens_high: 75000, estimated_hours_low: 5, estimated_hours_high: 7, recommended_model: gpt-6-astra, reasoning_effort: high}
+
+  - id: "4"
+    title: contents_maker와 채널 변환
+    status: planned
+    assignee: null
+    agent: null
+    dependencies: ["3.4"]
+    child_tasks: ["4.1", "4.2", "4.3", "4.4", "4.5"]
+    estimated_tokens_low: 185000
+    estimated_tokens_high: 285000
+    estimated_hours_low: 18
+    estimated_hours_high: 28
+    recommended_model: mixed
+    reasoning_effort: medium_to_high
+
+  - {id: "4.1", parent: "4", title: "CanonicalContent 생성기", status: planned, assignee: null, agent: null, dependencies: ["3.4"], estimated_tokens_low: 55000, estimated_tokens_high: 85000, estimated_hours_low: 5, estimated_hours_high: 8, recommended_model: gpt-5.6-sol, reasoning_effort: high}
+  - {id: "4.2", parent: "4", title: "이미지 수집·권리·대체텍스트", status: planned, assignee: null, agent: null, dependencies: ["3.4"], estimated_tokens_low: 30000, estimated_tokens_high: 45000, estimated_hours_low: 3, estimated_hours_high: 4, recommended_model: gpt-5.6-terra, reasoning_effort: medium}
+  - {id: "4.3", parent: "4", title: "티스토리·워드프레스 렌더러", status: planned, assignee: null, agent: null, dependencies: ["4.1", "4.2", "1.1", "1.2"], estimated_tokens_low: 45000, estimated_tokens_high: 70000, estimated_hours_low: 4, estimated_hours_high: 7, recommended_model: gpt-5.6-sol, reasoning_effort: medium}
+  - {id: "4.4", parent: "4", title: "네이버 SmartEditor 렌더러", status: planned, assignee: null, agent: null, dependencies: ["4.1", "4.2", "1.3"], estimated_tokens_low: 40000, estimated_tokens_high: 65000, estimated_hours_low: 4, estimated_hours_high: 6, recommended_model: gpt-5.6-sol, reasoning_effort: high}
+  - {id: "4.5", parent: "4", title: "콘텐츠 재현성·비용 검사", status: planned, assignee: null, agent: null, dependencies: ["4.1", "4.2", "4.3", "4.4"], estimated_tokens_low: 15000, estimated_tokens_high: 20000, estimated_hours_low: 2, estimated_hours_high: 3, recommended_model: gpt-5.6-terra, reasoning_effort: low}
+
+  - id: "5"
+    title: 검사·사람 승인
+    status: planned
+    assignee: null
+    agent: null
+    dependencies: ["4"]
+    child_tasks: ["5.1", "5.2", "5.3", "5.4"]
+    estimated_tokens_low: 165000
+    estimated_tokens_high: 255000
+    estimated_hours_low: 16
+    estimated_hours_high: 25
+    recommended_model: mixed
+    reasoning_effort: medium_to_high
+
+  - {id: "5.1", parent: "5", title: "시스템 checker", status: planned, assignee: null, agent: null, dependencies: ["4.5"], estimated_tokens_low: 55000, estimated_tokens_high: 85000, estimated_hours_low: 5, estimated_hours_high: 8, recommended_model: gpt-5.6-sol, reasoning_effort: high}
+  - {id: "5.2", parent: "5", title: "채널별 checker", status: planned, assignee: null, agent: null, dependencies: ["5.1", "1.5"], estimated_tokens_low: 45000, estimated_tokens_high: 70000, estimated_hours_low: 4, estimated_hours_high: 7, recommended_model: gpt-5.6-sol, reasoning_effort: high}
+  - {id: "5.3", parent: "5", title: "사람 승인·수정 루프", status: planned, assignee: null, agent: null, dependencies: ["5.1", "5.2", "1.4"], estimated_tokens_low: 35000, estimated_tokens_high: 55000, estimated_hours_low: 3, estimated_hours_high: 5, recommended_model: gpt-5.6-sol, reasoning_effort: medium}
+  - {id: "5.4", parent: "5", title: "checker 오탐·누락 평가", status: planned, assignee: null, agent: null, dependencies: ["5.1", "5.2", "5.3"], estimated_tokens_low: 30000, estimated_tokens_high: 45000, estimated_hours_low: 4, estimated_hours_high: 5, recommended_model: gpt-6-astra, reasoning_effort: high}
+
+  - id: "6"
+    title: 3개 채널 발행
+    status: planned
+    assignee: null
+    agent: null
+    dependencies: ["5"]
+    child_tasks: ["6.1", "6.2", "6.3", "6.4", "6.5"]
+    estimated_tokens_low: 235000
+    estimated_tokens_high: 370000
+    estimated_hours_low: 22
+    estimated_hours_high: 38
+    recommended_model: mixed
+    reasoning_effort: medium_to_high
+
+  - {id: "6.1", parent: "6", title: "공통 Publisher 계약", status: planned, assignee: null, agent: null, dependencies: ["2.3", "5.4"], estimated_tokens_low: 35000, estimated_tokens_high: 50000, estimated_hours_low: 3, estimated_hours_high: 5, recommended_model: gpt-6-astra, reasoning_effort: medium}
+  - {id: "6.2", parent: "6", title: "티스토리 Publisher", status: planned, assignee: null, agent: null, dependencies: ["6.1", "1.1"], estimated_tokens_low: 50000, estimated_tokens_high: 80000, estimated_hours_low: 5, estimated_hours_high: 8, recommended_model: gpt-5.6-sol, reasoning_effort: high}
+  - {id: "6.3", parent: "6", title: "워드프레스 Publisher", status: planned, assignee: null, agent: null, dependencies: ["6.1", "1.2"], estimated_tokens_low: 45000, estimated_tokens_high: 70000, estimated_hours_low: 4, estimated_hours_high: 7, recommended_model: gpt-5.6-sol, reasoning_effort: high}
+  - {id: "6.4", parent: "6", title: "네이버 Publisher", status: planned, assignee: null, agent: null, dependencies: ["6.1", "1.3"], estimated_tokens_low: 60000, estimated_tokens_high: 95000, estimated_hours_low: 6, estimated_hours_high: 10, recommended_model: gpt-5.6-sol, reasoning_effort: high}
+  - {id: "6.5", parent: "6", title: "실패 복구·중복 방지·발행 정책 게이트", status: planned, assignee: null, agent: null, dependencies: ["6.2", "6.3", "6.4"], estimated_tokens_low: 45000, estimated_tokens_high: 75000, estimated_hours_low: 4, estimated_hours_high: 8, recommended_model: gpt-6-astra, reasoning_effort: high}
+
+  - id: "7"
+    title: 통합·운영·최종 감사
+    status: planned
+    assignee: null
+    agent: null
+    dependencies: ["3", "4", "5", "6"]
+    child_tasks: ["7.1", "7.2", "7.3", "7.4"]
+    estimated_tokens_low: 160000
+    estimated_tokens_high: 280000
+    estimated_hours_low: 15
+    estimated_hours_high: 26
+    recommended_model: mixed
+    reasoning_effort: high
+
+  - {id: "7.1", parent: "7", title: "3채널 end-to-end 시나리오", status: planned, assignee: null, agent: null, dependencies: ["3.4", "4.5", "5.4", "6.5"], estimated_tokens_low: 55000, estimated_tokens_high: 90000, estimated_hours_low: 5, estimated_hours_high: 8, recommended_model: gpt-5.6-sol, reasoning_effort: high}
+  - {id: "7.2", parent: "7", title: "실패·재개·부분 성공·보안 검사", status: planned, assignee: null, agent: null, dependencies: ["7.1"], estimated_tokens_low: 35000, estimated_tokens_high: 60000, estimated_hours_low: 3, estimated_hours_high: 6, recommended_model: gpt-6-astra, reasoning_effort: high}
+  - {id: "7.3", parent: "7", title: "운영 문서·상태판·팀 인수인계", status: planned, assignee: null, agent: null, dependencies: ["7.1", "7.2"], estimated_tokens_low: 25000, estimated_tokens_high: 45000, estimated_hours_low: 3, estimated_hours_high: 4, recommended_model: gpt-5.6-terra, reasoning_effort: medium}
+  - {id: "7.4", parent: "7", title: "MODULE_SPEC 전수 적합성 감사", status: planned, assignee: null, agent: null, dependencies: ["7.3"], estimated_tokens_low: 45000, estimated_tokens_high: 85000, estimated_hours_low: 4, estimated_hours_high: 8, recommended_model: gpt-6-astra, reasoning_effort: high}
+
+summary:
+  estimated_tokens_low: 1400000
+  estimated_tokens_high: 2200000
+  estimated_hours_low: 135
+  estimated_hours_high: 220
+  assigned_tokens_by_worker:
+    yurim: 0
+    leesomyoung: 0

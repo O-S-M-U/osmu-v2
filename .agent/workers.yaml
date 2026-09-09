@@ -1,0 +1,56 @@
+schema_version: 1
+updated_at: "2026-09-09T00:00:00+09:00"
+
+planning_note: >-
+  token_budget는 작업 계획용 추정치다. 실제 Codex 구독 사용량은 모델, reasoning,
+  문맥, 도구 호출에 따라 달라지므로 usage_remaining_percent를 함께 확인한다.
+
+defaults:
+  reserve_ratio: 0.20
+  max_parallel_primary_tasks_per_worker: 1
+  split_if_task_exceeds_daily_budget_ratio: 0.50
+  usage_check_before_claim: true
+  usage_check_after_task: true
+
+workers:
+  - id: yurim
+    display_name: Chung Yurim
+    agent_label: yurim-agent
+    status: available
+    preferred_environment: local_or_codespace
+    active_task: null
+    usage_window_checked_at: null
+    usage_remaining_percent: null
+    manual_token_budget_total: null
+    manual_token_budget_remaining: null
+    capabilities:
+      - module_spec
+      - workflow
+      - architecture
+      - integration
+      - external_validation
+
+  - id: leesomyoung
+    display_name: LeeSoMyoung
+    agent_label: leesomyoung-agent
+    status: available
+    preferred_environment: codespace
+    active_task: null
+    usage_window_checked_at: null
+    usage_remaining_percent: null
+    manual_token_budget_total: null
+    manual_token_budget_remaining: null
+    capabilities:
+      - keyword_researcher
+      - collector
+      - implementation
+      - data_collection
+
+manager:
+  id: osmu-coordinator
+  status: available
+  write_scope:
+    - project/TASK_BOARD.yaml
+    - docs/coordination/STATUS.md
+    - docs/requirements/TRACEABILITY.md
+  merge_requires_human: true

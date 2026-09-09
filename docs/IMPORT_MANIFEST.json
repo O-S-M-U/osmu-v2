@@ -1,0 +1,62 @@
+[
+  {
+    "source": "/Users/chung-yurim/Desktop/O.S.M.U/MODULE_SPEC_20260522_v23.md",
+    "destination": "docs/baseline/MODULE_SPEC_20260522_v23.md",
+    "sha256": "70b72bdc0fad4cdb0b3a883fe387de0ee606ac13ee0ae5b57a5d40099c5ec7f2",
+    "role": "기존 기준 원본 사본; 멀티채널 검토 전"
+  },
+  {
+    "source": "/Users/chung-yurim/Desktop/O.S.M.U/워크플로우_시각화_20260522_v19.html",
+    "destination": "docs/baseline/워크플로우_시각화_20260522_v19.html",
+    "sha256": "d756c45ec52717659eefbe474f71f94b809fd9f545db30ea768900462c19274a",
+    "role": "기존 기준 원본 사본; 멀티채널 검토 전"
+  },
+  {
+    "source": "/Users/chung-yurim/Desktop/O.S.M.U/KEYWORD_SCORING_SPEC_20260517_v2.md",
+    "destination": "docs/baseline/KEYWORD_SCORING_SPEC_20260517_v2.md",
+    "sha256": "68bd73299be6738524686bfb992b153bb1b8a423b1a35db88dcb9876139c1447",
+    "role": "기존 기준 원본 사본; 멀티채널 검토 전"
+  },
+  {
+    "source": "/Users/chung-yurim/Desktop/O.S.M.U/COLLECTOR_PHASE1A_SPEC_20260522_v4.md",
+    "destination": "docs/baseline/COLLECTOR_PHASE1A_SPEC_20260522_v4.md",
+    "sha256": "9d70960d504baeca307a852c6e3c52837806fb3631ed74d32d00f5d07fc1ec76",
+    "role": "기존 기준 원본 사본; 멀티채널 검토 전"
+  },
+  {
+    "source": "/Users/chung-yurim/Desktop/O.S.M.U/sentence_normalization_guide.md",
+    "destination": "docs/baseline/sentence_normalization_guide.md",
+    "sha256": "e5e4bfb56941095dbb53153f5f36725d0c784a342168e24b054240ce6ef077fa",
+    "role": "기존 기준 원본 사본; 멀티채널 검토 전"
+  },
+  {
+    "source": "/Users/chung-yurim/Desktop/O.S.M.U/similarity_check_discussion.md",
+    "destination": "docs/baseline/similarity_check_discussion.md",
+    "sha256": "0bab6b12c0f2c9cfbff58f302da8269b905248e4fd1fae3254425e4540d1697c",
+    "role": "기존 기준 원본 사본; 멀티채널 검토 전"
+  },
+  {
+    "source": "/Users/chung-yurim/Desktop/O.S.M.U/docs/reviews/20260909_멀티채널_명세개선_검토안.md",
+    "destination": "docs/reviews/20260909_멀티채널_명세개선_검토안.md",
+    "sha256": "ea32b1bcbf40f6be6e9f39fef0c8e2e3932072c1a847a3d98cc8dd1c12b5eb6c",
+    "role": "평가/제안"
+  },
+  {
+    "source": "/Users/chung-yurim/Desktop/O.S.M.U/docs/reviews/20260909_구현현황_평가.md",
+    "destination": "docs/reviews/20260909_구현현황_평가.md",
+    "sha256": "717045f7bfaa8098807fe4629926d859e55ede2a5f652ad8216abf9bcb3e60c8",
+    "role": "평가/제안"
+  },
+  {
+    "source": "/Users/chung-yurim/Desktop/O.S.M.U/Blog_Generator/test_tistory_login.js",
+    "destination": "reference/tistory/test_tistory_login.js",
+    "sha256": "44cb0196304b485f60ad9bc45c5a960cd2623fc6cb5e84b267c358387d7b3f94",
+    "role": "미검증 참고 코드"
+  },
+  {
+    "source": "/Users/chung-yurim/Desktop/O.S.M.U/Blog_Generator/test_tistory_post.js",
+    "destination": "reference/tistory/test_tistory_post.js",
+    "sha256": "e6b0d46c5feb38af587aaaf869923709bc52e4ebfee3679bab7114565077cd35",
+    "role": "미검증 참고 코드"
+  }
+]

@@ -1,0 +1,19 @@
+# 인증과 로컬 상태
+.env
+.env.*
+!.env.example
+secrets/
+cookies/
+profiles/
+**/*session*.json
+**/storage_state*.json
+*.pem
+*.key
+# 생성물과 환경
+artifacts/
+.venv/
+venv/
+node_modules/
+__pycache__/
+*.pyc
+.DS_Store
