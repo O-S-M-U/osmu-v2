@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-09-09T00:00:00+09:00"
+updated_at: "2026-09-10T00:00:00+09:00"
 source_plan: docs/planning/OSMU_V2_WORK_ORDER.md
 completion_gate: module_spec_traceability_100_percent
 
@@ -23,6 +23,7 @@ tasks:
     assignee: null
     agent: null
     dependencies: []
+    child_tasks: ["0.1A", "0.1B"]
     estimated_tokens_low: 15000
     estimated_tokens_high: 25000
     estimated_hours_low: 1
@@ -34,6 +35,58 @@ tasks:
       - docs/decisions/**
       - docs/coordination/**
     shared_paths:
+      - docs/baseline/**
+    branch: null
+    pr: null
+    requirements: []
+    evidence: []
+
+  - id: "0.1A"
+    parent: "0.1"
+    title: 기준 문서 식별·해시·우선순위 기록
+    status: ready
+    assignee: yurim
+    agent: yurim-agent
+    dependencies: []
+    estimated_tokens_low: 10000
+    estimated_tokens_high: 15000
+    estimated_hours_low: 0.75
+    estimated_hours_high: 1
+    recommended_model: gpt-5.6-terra
+    reasoning_effort: medium
+    allowed_paths:
+      - docs/requirements/BASELINE.md
+      - docs/progress/20260910.md
+      - project/TASK_BOARD.yaml
+    read_only_paths:
+      - docs/baseline/**
+      - docs/IMPORT_MANIFEST.json
+      - .agent/**
+    branch: agent/yurim/0.1a-baseline-lock
+    pr: null
+    requirements: []
+    evidence: []
+    timebox_minutes: 60
+
+  - id: "0.1B"
+    parent: "0.1"
+    title: 버전 변경·결정 절차 확정
+    status: planned
+    assignee: null
+    agent: null
+    dependencies: ["0.1A"]
+    estimated_tokens_low: 5000
+    estimated_tokens_high: 10000
+    estimated_hours_low: 0.25
+    estimated_hours_high: 1
+    recommended_model: gpt-5.6-terra
+    reasoning_effort: low
+    allowed_paths:
+      - docs/requirements/BASELINE.md
+      - docs/decisions/**
+      - docs/coordination/**
+      - project/TASK_BOARD.yaml
+    read_only_paths:
       - docs/baseline/**
     branch: null
     pr: null
