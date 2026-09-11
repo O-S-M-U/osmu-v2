@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-09-11T15:17:05+09:00"
+updated_at: "2026-09-11T16:27:22+09:00"
 source_plan: docs/planning/OSMU_V2_WORK_ORDER.md
 completion_gate: module_spec_traceability_100_percent
 
@@ -44,7 +44,7 @@ tasks:
   - id: "0.1A"
     parent: "0.1"
     title: 기준 문서 식별·해시·우선순위 기록
-    status: review
+    status: verified
     assignee: yurim
     agent: yurim-agent
     dependencies: []
@@ -63,10 +63,12 @@ tasks:
       - docs/IMPORT_MANIFEST.json
       - .agent/**
     branch: agent/yurim/0.1a-baseline-lock
-    pr: null
+    pr: https://github.com/O-S-M-U/osmu-v2/pull/1
     started_at: "2026-09-11T15:15:04+09:00"
     base_revision: 8299d47202b0427ec01d9d498eb72726a4bd34ab
     review_requested_at: "2026-09-11T15:17:05+09:00"
+    verified_at: "2026-09-11T16:27:22+09:00"
+    verified_by: osmu-coordinator
     requirements: []
     evidence:
       - docs/requirements/BASELINE.md
