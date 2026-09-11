@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-09-11T16:27:22+09:00"
+updated_at: "2026-09-11T17:46:56+09:00"
 source_plan: docs/planning/OSMU_V2_WORK_ORDER.md
 completion_gate: module_spec_traceability_100_percent
 
@@ -19,7 +19,7 @@ statuses:
 tasks:
   - id: "0.1"
     title: 기준 문서 원본 고정·버전 규칙 확정
-    status: ready
+    status: working
     assignee: null
     agent: null
     dependencies: []
@@ -44,7 +44,7 @@ tasks:
   - id: "0.1A"
     parent: "0.1"
     title: 기준 문서 식별·해시·우선순위 기록
-    status: verified
+    status: done
     assignee: yurim
     agent: yurim-agent
     dependencies: []
@@ -69,6 +69,9 @@ tasks:
     review_requested_at: "2026-09-11T15:17:05+09:00"
     verified_at: "2026-09-11T16:27:22+09:00"
     verified_by: osmu-coordinator
+    merged_at: "2026-09-11T17:46:26+09:00"
+    merge_commit: a6be97a02583848420817de7f939ae626919a375
+    main_verified_at: "2026-09-11T17:46:56+09:00"
     requirements: []
     evidence:
       - docs/requirements/BASELINE.md
@@ -78,7 +81,7 @@ tasks:
   - id: "0.1B"
     parent: "0.1"
     title: 버전 변경·결정 절차 확정
-    status: planned
+    status: ready
     assignee: null
     agent: null
     dependencies: ["0.1A"]
