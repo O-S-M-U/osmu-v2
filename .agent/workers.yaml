@@ -49,7 +49,7 @@ workers:
       - implementation
       - data_collection
 
-  - id: yurim-windows
+  - id: worker-c
     display_name: Worker C (Yurim / Windows)
     agent_label: worker-c-agent
     status: assigned

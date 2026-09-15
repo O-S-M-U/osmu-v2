@@ -82,7 +82,7 @@ tasks:
     parent: "0.1"
     title: 버전 변경·결정 절차 확정
     status: claimed
-    assignee: yurim-windows
+    assignee: worker-c
     agent: worker-c-agent
     dependencies: ["0.1A"]
     estimated_tokens_low: 5000
@@ -99,7 +99,7 @@ tasks:
       - docs/baseline/**
       - docs/decisions/**
       - .agent/**
-    branch: agent/yurim-windows/0.1b-version-procedure
+    branch: agent/worker-c/0.1b-version-procedure
     pr: null
     claimed_at: "2026-09-15T21:18:06+09:00"
     base_revision: 357adfea34226f3141d7bb17a70daf629ad95660

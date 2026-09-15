@@ -46,4 +46,4 @@ python3 scripts/prepare_sample.py
 
 새 Codex 작업을 열 때는 `.agent/prompts/coordinator.md` 또는 `.agent/prompts/worker.md`를 시작 프롬프트로 사용합니다. 작업자 프롬프트의 `<worker-id>`와 `<task-id>`만 실제 값으로 바꿉니다.
 
-Worker C는 Worker A의 다른 Windows 노트북에서 worktree로 실행하며 작업자 ID `yurim-windows`를 사용합니다. A와 C는 Codex Usage를 공유하므로 수동 예산을 나누기 전에는 병렬 주 작업을 실행하지 않습니다. Worker B는 2026-09-15 현재 신규 배정 보류 상태입니다.
+Worker C는 Worker A의 다른 Windows 노트북에서 worktree로 실행하며 작업자 ID `worker-c`를 사용합니다. A와 C는 Codex Usage를 공유하므로 수동 예산을 나누기 전에는 병렬 주 작업을 실행하지 않습니다. Worker B는 2026-09-15 현재 신규 배정 보류 상태입니다.
