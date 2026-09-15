@@ -81,7 +81,7 @@ tasks:
   - id: "0.1B"
     parent: "0.1"
     title: 버전 변경·결정 절차 확정
-    status: claimed
+    status: review
     assignee: worker-c
     agent: worker-c-agent
     dependencies: ["0.1A"]
@@ -103,10 +103,13 @@ tasks:
     pr: null
     claimed_at: "2026-09-15T21:18:06+09:00"
     base_revision: 357adfea34226f3141d7bb17a70daf629ad95660
+    review_requested_at: "2026-09-15T22:08:00+09:00"
     timebox_minutes: 60
     reviewer: osmu-coordinator
     requirements: []
-    evidence: []
+    evidence:
+      - docs/requirements/BASELINE.md
+      - docs/progress/20260915.md
 
   - id: "0.2"
     title: MODULE_SPEC 전 요구사항 원자화
