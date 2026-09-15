@@ -111,3 +111,14 @@ main에서 assignee가 leesomyoung인 TASK <ID> 하나만 allowed_paths 안에�
 4. 실제 배정은 두 작업자의 그날 Usage 잔량과 가능 시간을 받은 뒤 M이 확정한다.
 
 이 첫 실행을 통과한 뒤에는 `project/TASK_BOARD.yaml`의 의존성에 따라 같은 절차를 반복한다.
+
+## 2026-09-15 Worker C 운영 변경
+
+- Worker B는 현재 접속이 어려워 신규 작업 배정을 보류한다.
+- Worker C의 작업자 ID는 `yurim-windows`, 에이전트 이름은 `worker-c-agent`다.
+- Worker C는 Worker A의 다른 Windows 노트북에서 `O.S.M.U_ver2` 프로젝트의 Codex-managed worktree를 사용한다.
+- Worker C 브랜치는 `agent/yurim-windows/<task-id>-<short-name>` 형식을 사용한다.
+- Worker A와 C는 동일 Codex 계정의 Usage를 공유하므로 수동 예산 분할 전에는 둘 중 한 명에게만 주 작업을 배정한다.
+- Windows 전용 명령, 경로 또는 브라우저 차이가 결과에 영향을 주면 작업 증거에 기록한다.
+- Worker C의 첫 작업은 `0.1B 버전 변경·결정 절차 확정`이다. 이후 Windows 환경을 활용한 플랫폼 편집기·브라우저 검증을 우선 후보로 검토한다.
+- 외부 초안 저장·발행·메시지 전송은 Worker C 배정만으로 승인된 것이 아니며, 기존 승인 게이트를 그대로 적용한다.

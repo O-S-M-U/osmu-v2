@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-09-09T00:00:00+09:00"
+updated_at: "2026-09-15T21:18:06+09:00"
 
 planning_note: >-
   token_budget는 작업 계획용 추정치다. 실제 Codex 구독 사용량은 모델, reasoning,
@@ -8,6 +8,7 @@ planning_note: >-
 defaults:
   reserve_ratio: 0.20
   max_parallel_primary_tasks_per_worker: 1
+  max_parallel_primary_tasks_per_shared_usage_group: 1
   split_if_task_exceeds_daily_budget_ratio: 0.50
   usage_check_before_claim: true
   usage_check_after_task: true
@@ -19,8 +20,9 @@ workers:
     status: available
     preferred_environment: local_or_codespace
     active_task: null
-    usage_window_checked_at: null
-    usage_remaining_percent: null
+    shared_usage_group: yurim-codex-account
+    usage_window_checked_at: "2026-09-15T21:18:06+09:00"
+    usage_remaining_percent: 99
     manual_token_budget_total: null
     manual_token_budget_remaining: null
     capabilities:
@@ -33,9 +35,10 @@ workers:
   - id: leesomyoung
     display_name: LeeSoMyoung
     agent_label: leesomyoung-agent
-    status: available
+    status: unavailable
     preferred_environment: codespace
     active_task: null
+    availability_note: "2026-09-15 사용자 전달: 현재 접속이 어려워 신규 작업 배정 보류"
     usage_window_checked_at: null
     usage_remaining_percent: null
     manual_token_budget_total: null
@@ -45,6 +48,28 @@ workers:
       - collector
       - implementation
       - data_collection
+
+  - id: yurim-windows
+    display_name: Worker C (Yurim / Windows)
+    agent_label: worker-c-agent
+    status: assigned
+    preferred_environment: windows_worktree
+    active_task: "0.1B"
+    shared_usage_group: yurim-codex-account
+    usage_window_checked_at: "2026-09-15T21:18:06+09:00"
+    usage_remaining_percent: 99
+    manual_token_budget_total: null
+    manual_token_budget_remaining: null
+    capabilities:
+      - module_spec
+      - workflow
+      - documentation
+      - windows_compatibility
+      - browser_validation
+      - external_validation
+    constraints:
+      - "Worker A와 Codex Usage를 공유하므로 수동 예산 분할 전 병렬 주 작업 금지"
+      - "Windows 전용 명령·경로 차이는 작업 증거에 기록"
 
 manager:
   id: osmu-coordinator

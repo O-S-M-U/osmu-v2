@@ -36,7 +36,7 @@ python3 scripts/prepare_sample.py
 
 오늘 기록은 docs/progress/20260909.md에서 이어갑니다.
 
-## 두 사람과 에이전트로 작업하기
+## 여러 작업자와 에이전트로 작업하기
 
 1. 각자 작업 시작 전 Codex Settings → Usage를 보고 `.agent/workers.yaml`의 남은 비율과 수동 계획 예산을 갱신합니다.
 2. OSMU Coordinator가 의존성, 파일 경계, 예상 토큰 상한을 비교해 각 작업자에게 한 개의 주 작업을 제안합니다.
@@ -45,3 +45,5 @@ python3 scripts/prepare_sample.py
 5. `main` 병합 후 다시 검사된 작업만 `done`으로 처리합니다.
 
 새 Codex 작업을 열 때는 `.agent/prompts/coordinator.md` 또는 `.agent/prompts/worker.md`를 시작 프롬프트로 사용합니다. 작업자 프롬프트의 `<worker-id>`와 `<task-id>`만 실제 값으로 바꿉니다.
+
+Worker C는 Worker A의 다른 Windows 노트북에서 worktree로 실행하며 작업자 ID `yurim-windows`를 사용합니다. A와 C는 Codex Usage를 공유하므로 수동 예산을 나누기 전에는 병렬 주 작업을 실행하지 않습니다. Worker B는 2026-09-15 현재 신규 배정 보류 상태입니다.
