@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-09-11T17:46:56+09:00"
+updated_at: "2026-09-15T21:18:06+09:00"
 source_plan: docs/planning/OSMU_V2_WORK_ORDER.md
 completion_gate: module_spec_traceability_100_percent
 
@@ -81,9 +81,9 @@ tasks:
   - id: "0.1B"
     parent: "0.1"
     title: 버전 변경·결정 절차 확정
-    status: ready
-    assignee: null
-    agent: null
+    status: claimed
+    assignee: worker-c
+    agent: worker-c-agent
     dependencies: ["0.1A"]
     estimated_tokens_low: 5000
     estimated_tokens_high: 10000
@@ -93,13 +93,18 @@ tasks:
     reasoning_effort: low
     allowed_paths:
       - docs/requirements/BASELINE.md
-      - docs/decisions/**
-      - docs/coordination/**
+      - docs/progress/20260915.md
       - project/TASK_BOARD.yaml
     read_only_paths:
       - docs/baseline/**
-    branch: null
+      - docs/decisions/**
+      - .agent/**
+    branch: agent/worker-c/0.1b-version-procedure
     pr: null
+    claimed_at: "2026-09-15T21:18:06+09:00"
+    base_revision: 357adfea34226f3141d7bb17a70daf629ad95660
+    timebox_minutes: 60
+    reviewer: osmu-coordinator
     requirements: []
     evidence: []
 
