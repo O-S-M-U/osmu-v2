@@ -1,6 +1,6 @@
 # OSMU Coordinator 상태 보고
 
-최종 갱신: 2026-09-15
+최종 갱신: 2026-09-16
 
 ## 기준선
 
@@ -28,6 +28,15 @@
 - Worker C를 Windows worktree 작업자로 등록하고 `0.1B 버전 변경·결정 절차 확정`을 배정했다.
 - Worker A와 C는 동일 Codex 계정의 Usage를 공유한다. 현재 주간 창은 1% 사용·99% 잔여지만 수동 토큰 예산이 없으므로 두 작업자에게 병렬 주 작업을 배정하지 않는다.
 - `0.1B`는 최대 10K·60분의 짧은 문서 작업으로 제한하며 기준 사본과 기존 결정 기록은 읽기 전용이다.
+
+## 2026-09-16 운영 모델 확정
+
+- 운영환경은 작업자의 호스트 OS가 아니라 저장소의 GitHub Codespaces dev container를 기준으로 통일한다. Branch는 결과 분리용이다.
+- 계획 계층은 `MODULE_SPEC → WORK_ORDER → TASK_BOARD.yaml`이며 `TRACEABILITY.md`가 요구사항·작업·검사·증거를 연결한다.
+- 상태 흐름은 `planned → ready → claimed → working → review → pr → verified → done`이다. 실행 장애는 `blocked`, 명세·범위 판단은 `decision_required`로 기록한다.
+- 작업자는 `review`/`pr`까지 제출하고, M은 diff·검사·증거를 확인한 뒤 `verified`, 병합 후 main 재검증 뒤 `done`을 확정한다.
+- 프로젝트 owner는 Module Spec 범위 변경과 필요한 병합 승인을 담당한다. 기존 baseline은 직접 수정하지 않고 결정 기록과 새 버전을 만든다.
+- 상세 운영 근거: `docs/decisions/20260916-operation-model.md`
 
 ## 다음 병렬화 후보
 

@@ -18,7 +18,7 @@ workers:
     display_name: Chung Yurim
     agent_label: yurim-agent
     status: available
-    preferred_environment: local_or_codespace
+    preferred_environment: github_codespaces
     active_task: null
     shared_usage_group: yurim-codex-account
     usage_window_checked_at: "2026-09-15T21:18:06+09:00"
@@ -36,7 +36,7 @@ workers:
     display_name: LeeSoMyoung
     agent_label: leesomyoung-agent
     status: unavailable
-    preferred_environment: codespace
+    preferred_environment: github_codespaces
     active_task: null
     availability_note: "2026-09-15 사용자 전달: 현재 접속이 어려워 신규 작업 배정 보류"
     usage_window_checked_at: null
@@ -53,7 +53,7 @@ workers:
     display_name: Worker C (Yurim / Windows)
     agent_label: worker-c-agent
     status: assigned
-    preferred_environment: windows_worktree
+    preferred_environment: github_codespaces
     active_task: "0.1B"
     shared_usage_group: yurim-codex-account
     usage_window_checked_at: "2026-09-15T21:18:06+09:00"
@@ -69,7 +69,8 @@ workers:
       - external_validation
     constraints:
       - "Worker A와 Codex Usage를 공유하므로 수동 예산 분할 전 병렬 주 작업 금지"
-      - "Windows 전용 명령·경로 차이는 작업 증거에 기록"
+      - "Windows 호스트를 사용하더라도 작업은 공통 GitHub Codespaces dev container에서 수행"
+      - "외부 브라우저·플랫폼 차이는 작업 증거에 기록"
 
 manager:
   id: osmu-coordinator

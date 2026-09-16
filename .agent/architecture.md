@@ -10,9 +10,9 @@ Planner, Dispatcher, Integrator 역할을 맡는다. 코드를 대신 구현하�
 - Dispatcher: 의존성, 파일 소유권, 각 작업자 에이전트의 안전 할당량을 보고 다음 작업을 제안한다.
 - Integrator: PR의 요구사항 연결과 증거를 확인하고 `verified` 여부를 판정한다.
 
-### Worker Yurim / Worker LeeSoMyoung
+### Worker Yurim / Worker LeeSoMyoung / Worker C
 
-각 사람은 자신의 Codex 작업, Codespace 또는 로컬 worktree와 별도 브랜치를 사용한다. 작업자는 맡은 작업의 구현, 검사, 증거, 상태 갱신까지 책임진다.
+각 사람은 자신의 Codex 작업, GitHub Codespaces dev container와 별도 브랜치를 사용한다. Codespace는 공통 실행환경을 제공하고 branch는 결과를 분리한다. 작업자는 맡은 작업의 구현, 검사, 증거, `review`/`pr` 상태 제안까지 책임진다.
 
 ## 흐름
 
@@ -39,6 +39,6 @@ flowchart LR
 
 ## 상태 전이
 
-`planned → ready → claimed → working → pr → review → verified → done`
+`planned → ready → claimed → working → review → pr → verified → done`
 
-보조 상태는 `blocked`, `decision_required`, `cancelled`다. `verified`는 PR, 검사, 증거, 요구사항 연결이 모두 확인됐다는 뜻이다. `done`은 검증된 변경이 `main`에 병합되고 기준 브랜치에서 다시 검사된 뒤에만 사용한다.
+보조 상태는 `blocked`, `decision_required`, `cancelled`다. `review`는 작업자가 결과를 제출한 상태, `pr`은 원격 PR이 생성된 상태다. `verified`는 M이 PR, 검사, 증거, 요구사항 연결을 모두 확인했다는 뜻이다. `done`은 검증된 변경이 `main`에 병합되고 기준 브랜치에서 다시 검사된 뒤에만 사용한다.
