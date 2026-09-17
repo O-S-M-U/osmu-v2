@@ -43,6 +43,7 @@
 - Agent Workforce는 프로젝트 기획과 분리된 실행·추적·검증 스킬로 확정했다.
 - 발동 전 승인된 MODULE_SPEC과 최소 입력 계약을 검증하며, 미흡하면 `decision_required`로 보류한다.
 - 상세 계약: `docs/decisions/20260917-agent-workforce-skill-contract.md`
+- `.github/workflows/agent-workforce-monitor.yml`이 push·PR·review 이벤트를 캡처한다. `MONITOR_WEBHOOK_URL` 미설정 시 artifact만 보존하며 M 자동 호출은 아직 비활성이다.
 
 ## 다음 병렬화 후보
 
