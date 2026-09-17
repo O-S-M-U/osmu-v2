@@ -38,6 +38,12 @@
 - 프로젝트 owner는 Module Spec 범위 변경과 필요한 병합 승인을 담당한다. 기존 baseline은 직접 수정하지 않고 결정 기록과 새 버전을 만든다.
 - 상세 운영 근거: `docs/decisions/20260916-operation-model.md`
 
+## 2026-09-17 Agent Workforce 스킬 계약 확정
+
+- Agent Workforce는 프로젝트 기획과 분리된 실행·추적·검증 스킬로 확정했다.
+- 발동 전 승인된 MODULE_SPEC과 최소 입력 계약을 검증하며, 미흡하면 `decision_required`로 보류한다.
+- 상세 계약: `docs/decisions/20260917-agent-workforce-skill-contract.md`
+
 ## 다음 병렬화 후보
 
 Worker C가 `0.1B`를 완료하면 M이 검토해 상위 `0.1`을 종료한다. 그 뒤 Worker A의 `0.2` 요구사항 원자화와 Worker C의 Windows 기반 외부 플랫폼 최소 검증을 후보로 검토한다. A와 C의 병렬 실행은 공유 Usage에 대한 수동 예산을 먼저 나눴을 때만 허용한다.
