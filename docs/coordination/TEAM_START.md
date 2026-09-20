@@ -1,18 +1,21 @@
-# A·M·B 협업 시작 안내
+# A·M·B·C 협업 시작 안내
 
 ## 역할
 
 - 작업자 A: Yurim (`yurim-agent`)
 - 중간관리자 M: OSMU Coordinator
 - 작업자 B: LeeSoMyoung (`leesomyoung-agent`)
+- 작업자 C: Worker C (`worker-c-agent`, Windows)
 
-M은 상시 실행되는 서버가 아니다. A 또는 B가 Codex에서 `.agent/prompts/coordinator.md`를 읽혀 호출하는 역할이다. M의 기억 대신 GitHub `main`, 작업 보드, PR, evidence를 공유 상태로 사용한다.
+M은 작업자 대화를 상시 읽는 서버가 아니다. 작업자는 자기 대화에서 실행하고 branch·PR·progress/evidence로 인수인계 신호를 남긴다. M은 상태 변경·새 커밋·PR이 있을 때만 상세 검토한다. M의 기억 대신 GitHub `main`, 작업 보드, PR, evidence를 공유 상태로 사용한다.
 
 초기에는 A가 M의 운영자를 맡는다. B는 M이 `main`의 작업 보드에 배정한 작업을 확인한 뒤 작업자 에이전트를 실행한다. A가 없는 동안 B가 M을 호출할 수 있지만, 먼저 최신 `main`을 받아 다른 M 실행이나 새 배정이 없는지 확인한다.
 
-## 0. Codex 로컬 프로젝트 준비
+## 0. 공통 실행환경과 Codex 프로젝트 준비
 
-Codex의 프로젝트는 작업 파일을 새로 복사하는 단위가 아니라, 여러 작업 대화가 같은 폴더와 지침을 사용하도록 묶는 단위다. 먼저 각자 clone한 `O.S.M.U_ver2` 폴더를 `O.S.M.U v2`라는 로컬 프로젝트로 등록하고 이 폴더를 primary로 지정한다.
+작업자는 운영체제와 관계없이 GitHub Codespaces의 저장소 공통 dev container를 우선 사용한다. Codespace는 도구·런타임·셸 환경을 통일하고, branch는 작업 결과를 분리한다. `.devcontainer/` 설정이 없거나 불완전하면 로컬 환경에서 임의로 기준을 만들지 말고 M에게 환경 준비 작업을 요청한다.
+
+Codex의 프로젝트는 작업 파일을 새로 복사하는 단위가 아니라, 여러 작업 대화가 같은 저장소 지침을 사용하도록 묶는 단위다. 먼저 각자 저장소를 `O.S.M.U v2`라는 프로젝트의 primary로 지정한다.
 
 그 프로젝트 안에 목적별로 별도 작업 대화를 만든다.
 
@@ -20,7 +23,8 @@ Codex의 프로젝트는 작업 파일을 새로 복사하는 단위가 아니�
 O.S.M.U v2 프로젝트 → 각자의 O.S.M.U_ver2 저장소 폴더
 ├─ OSMU Coordinator (M)
 ├─ Worker A — TASK <ID>
-└─ Worker B — TASK <ID>
+├─ Worker B — TASK <ID>
+└─ Worker C — TASK <ID>
 ```
 
 기존 `O.S.M.U_` 프로젝트는 이전 `O.S.M.U` 폴더를 가리키므로 v2 구현 작업의 primary 프로젝트로 사용하지 않는다.
@@ -30,7 +34,7 @@ O.S.M.U v2 프로젝트 → 각자의 O.S.M.U_ver2 저장소 폴더
 각 작업자는 자기 계정의 Codex Settings → Usage를 확인한다. M은 다른 사람 계정의 잔량을 자동으로 볼 수 없으므로 다음 값을 직접 전달해야 한다.
 
 ```text
-작업자: A 또는 B
+작업자: A, B 또는 C
 5시간 창 잔여 비율:
 주간 잔여 비율:
 다음 reset 시각:
@@ -69,39 +73,41 @@ main에 배정된 TASK <ID> 하나만 allowed_paths 안에서 수행하고,
 
 브랜치 이름은 `agent/yurim/<task-id>-<short-name>`을 사용한다.
 
-## 4. 작업자 B의 최초 준비
+## 4. 작업자 B/C의 최초 준비
 
 B는 GitHub 계정 `LeeSoMyoung`으로 아래 공개 저장소에 접근한다.
 
 https://github.com/O-S-M-U/osmu-v2
 
-Codespace를 쓰는 경우 저장소의 `Code → Codespaces → Create codespace on main`으로 만든다. 로컬에서 작업하면 다음과 같이 준비한다.
+저장소의 `Code → Codespaces → Create codespace on main`으로 만든다. `.devcontainer/`가 준비되기 전에는 환경 준비 작업을 먼저 요청하며, 개인 로컬 환경을 프로젝트 기준으로 삼지 않는다.
+
+Codespace 안에서 최신 기준을 확인한다.
 
 ```sh
-git clone https://github.com/O-S-M-U/osmu-v2.git
-cd osmu-v2
+git switch main
 git pull --ff-only origin main
 ```
 
-B가 자기 Codex 작업에 전달할 시작 지시문은 다음과 같다.
+B 또는 C가 자기 Codex 작업에 전달할 시작 지시문은 다음과 같다.
 
 ```text
-나는 작업자 B(leesomyoung)다. AGENTS.md, .agent/project.md, .agent/rules.md,
+나는 작업자 <ID>다. AGENTS.md, .agent/project.md, .agent/rules.md,
 .agent/prompts/worker.md, project/TASK_BOARD.yaml을 읽어라.
-main에서 assignee가 leesomyoung인 TASK <ID> 하나만 allowed_paths 안에서 수행하고,
+main에서 내 assignee인 TASK <ID> 하나만 allowed_paths 안에서 수행하고,
 검사·evidence·추적표·실제 시간과 Usage 변화까지 기록해 PR을 준비해라.
 ```
 
 브랜치 이름은 `agent/leesomyoung/<task-id>-<short-name>`을 사용한다. B는 `main`에 직접 구현 commit을 올리지 않고 자기 브랜치와 PR을 사용한다.
 
-## 5. 완료와 다음 배정
+## 5. 상태 전이와 완료
 
-1. 작업자 에이전트가 코드, 검사, evidence, 추적표와 진행 기록을 commit한다.
-2. 작업자가 GitHub PR을 만든다.
-3. A가 M을 다시 호출해 PR과 MODULE_SPEC 요구사항을 대조한다.
-4. M은 부족한 증거를 `review`로 돌려보내거나 통과 작업을 `verified`로 판정한다.
-5. 병합 후 기준 브랜치에서 다시 검사해 `done`으로 바꾼다.
-6. 두 작업자가 새 Usage 체크인을 전달하면 M이 다음 작업을 배정한다.
+1. `planned → ready → claimed → working`은 배정과 실제 착수를 기록한다.
+2. 작업자는 코드, 검사, evidence, 추적표와 진행 기록을 commit한다.
+3. 결과 제출은 `review`, PR 생성 후에는 `pr`로 기록한다.
+4. M은 요구사항·diff·검사·증거를 대조하고 부족하면 수정 재배정 또는 `blocked`/`decision_required`로 기록한다.
+5. 통과 작업만 `verified`로 판정한다.
+6. 프로젝트 owner 또는 승인권자의 병합 승인 후 main에서 재검증하고 `done`으로 바꾼다.
+7. 병합된 `main`과 TASK_BOARD가 다음 배정의 기준이다.
 
 ## 첫 실행 권장 순서
 
@@ -116,9 +122,9 @@ main에서 assignee가 leesomyoung인 TASK <ID> 하나만 allowed_paths 안에�
 
 - Worker B는 현재 접속이 어려워 신규 작업 배정을 보류한다.
 - Worker C의 작업자 ID는 `worker-c`, 에이전트 이름은 `worker-c-agent`다.
-- Worker C는 Worker A의 다른 Windows 노트북에서 `O.S.M.U_ver2` 프로젝트의 Codex-managed worktree를 사용한다.
+- Worker C는 Worker A의 다른 Windows 노트북에서 GitHub Codespaces의 공통 dev container를 사용한다. Windows는 호스트일 뿐 제품 작업환경의 기준이 아니다.
 - Worker C 브랜치는 `agent/worker-c/<task-id>-<short-name>` 형식을 사용한다.
 - Worker A와 C는 동일 Codex 계정의 Usage를 공유하므로 수동 예산 분할 전에는 둘 중 한 명에게만 주 작업을 배정한다.
-- Windows 전용 명령, 경로 또는 브라우저 차이가 결과에 영향을 주면 작업 증거에 기록한다.
+- 호스트 OS나 외부 브라우저 차이가 결과에 영향을 주면 작업 증거에 기록한다.
 - Worker C의 첫 작업은 `0.1B 버전 변경·결정 절차 확정`이다. 이후 Windows 환경을 활용한 플랫폼 편집기·브라우저 검증을 우선 후보로 검토한다.
 - 외부 초안 저장·발행·메시지 전송은 Worker C 배정만으로 승인된 것이 아니며, 기존 승인 게이트를 그대로 적용한다.

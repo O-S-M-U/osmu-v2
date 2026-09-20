@@ -27,6 +27,22 @@
 
 모든 작업은 `docs/planning/OSMU_V2_WORK_ORDER.md`의 ID를 사용한다. 한 작업에는 한 명의 주 담당자와 한 개의 작업 브랜치만 둔다. 예상 토큰 상한이 담당자의 안전 할당량보다 크면 작업을 시작하기 전에 하위 작업으로 나눈다.
 
+## 계획·상태 계층
+
+```text
+MODULE_SPEC → WORK_ORDER → TASK_BOARD.yaml
+```
+
+`MODULE_SPEC`은 제품 요구사항과 품질 기준, `WORK_ORDER`는 요구사항을 실현하는 작업 분할·의존성·예상량, `TASK_BOARD.yaml`은 담당자·브랜치·상태·PR·증거를 기록한다. `docs/requirements/TRACEABILITY.md`는 요구사항 ID와 작업·검사·증거를 연결한다.
+
+## 공통 실행환경
+
+작업자는 GitHub Codespaces의 저장소 공통 dev container를 우선 사용한다. Codespace는 실행환경을 통일하고 branch는 작업 결과를 분리한다. `.devcontainer/` 설정이 없거나 불완전하면 작업을 임의로 시작하지 않고 환경 준비 변경을 별도 작업으로 요청한다.
+
+## 상태 전이
+
+기본 흐름은 `planned → ready → claimed → working → review → pr → verified → done`이다. 작업 중 실행 장애는 `blocked`, 명세·범위 판단은 `decision_required`로 기록한다. `verified`와 `done`은 M만 증거 조건을 확인한 뒤 확정하며, 공식 상태는 병합된 `main`의 TASK_BOARD가 결정한다.
+
 ## 공유 기록
 
 Git의 `main`과 아래 파일이 유일한 공유 기준이다. 에이전트 대화 기억은 기준이 아니다.

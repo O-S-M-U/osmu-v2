@@ -1,0 +1,33 @@
+{
+  "name": "O.S.M.U v2",
+  "image": "mcr.microsoft.com/devcontainers/base:ubuntu-24.04",
+  "features": {
+    "ghcr.io/devcontainers/features/python:1": {
+      "version": "3.12"
+    },
+    "ghcr.io/devcontainers/features/node:1": {
+      "version": "20"
+    },
+    "ghcr.io/devcontainers/features/github-cli:1": {}
+  },
+  "containerEnv": {
+    "TZ": "Asia/Seoul",
+    "LANG": "C.UTF-8",
+    "LC_ALL": "C.UTF-8"
+  },
+  "postCreateCommand": "git config --global core.autocrlf input && python3 --version && node --version && gh --version",
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "editor.insertSpaces": true,
+        "editor.tabSize": 2,
+        "files.eol": "\n"
+      },
+      "extensions": [
+        "ms-python.python",
+        "ms-python.vscode-pylance",
+        "dbaeumer.vscode-eslint"
+      ]
+    }
+  }
+}
