@@ -19,7 +19,7 @@ statuses:
 tasks:
   - id: "0.1"
     title: 기준 문서 원본 고정·버전 규칙 확정
-    status: working
+    status: done
     assignee: null
     agent: null
     dependencies: []
@@ -38,6 +38,11 @@ tasks:
       - docs/baseline/**
     branch: null
     pr: null
+    verified_at: "2026-09-20T13:00:11Z"
+    verified_by: osmu-coordinator
+    merged_at: "2026-09-20T13:00:11Z"
+    merge_commit: 7a7ff85030b879530b8078be1bbbfd24ee71ad2c
+    main_verified_at: "2026-09-20T13:03:00+09:00"
     requirements: []
     evidence: []
 
@@ -81,7 +86,7 @@ tasks:
   - id: "0.1B"
     parent: "0.1"
     title: 버전 변경·결정 절차 확정
-    status: review
+    status: done
     assignee: worker-c
     agent: worker-c-agent
     dependencies: ["0.1A"]
@@ -104,6 +109,11 @@ tasks:
     claimed_at: "2026-09-15T21:18:06+09:00"
     base_revision: 357adfea34226f3141d7bb17a70daf629ad95660
     review_requested_at: "2026-09-15T22:08:00+09:00"
+    verified_at: "2026-09-20T13:00:11Z"
+    verified_by: osmu-coordinator
+    merged_at: "2026-09-20T13:00:11Z"
+    merge_commit: 7a7ff85030b879530b8078be1bbbfd24ee71ad2c
+    main_verified_at: "2026-09-20T13:03:00+09:00"
     timebox_minutes: 60
     reviewer: osmu-coordinator
     requirements: []
