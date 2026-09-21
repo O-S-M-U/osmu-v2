@@ -1,6 +1,6 @@
 # OSMU Coordinator 상태 보고
 
-최종 갱신: 2026-09-20
+최종 갱신: 2026-09-21
 
 ## 기준선
 
@@ -16,7 +16,8 @@
 |---|---|---|---:|---|
 | Chung Yurim / yurim-agent | 없음 | 99% 잔여(Worker C와 공유) | 미입력 | available / primary hold |
 | LeeSoMyoung / leesomyoung-agent | 없음 | 미입력 | 미입력 | unavailable |
-| Worker C / worker-c-agent | 없음 | 99% 잔여(Worker A와 공유) | 미입력 | available / primary hold |
+| Worker C / worker-c-agent | 없음 | 마지막 확인 99% 잔여(Worker A와 공유) | 미입력 | unavailable / 연락 두절 |
+| Worker D / worker-d-claude | 0.1B-R1 | 시작 전 확인 필요 | 미입력 | assigned / governance merge 대기 |
 
 ## 현재 판정
 
@@ -30,6 +31,9 @@
 - `0.1B`는 최대 10K·60분의 짧은 문서 작업으로 제한하며 기준 사본과 기존 결정 기록은 읽기 전용이다.
 - `0.1B 버전 변경·결정 절차 확정`은 PR #4로 병합됐고 main 재검증을 마쳐 `done`으로 확정했다.
 - PR #3 운영 지침 병합 커밋은 `06913adeada511aadb8a946813d266b2f0d07b20`, PR #4 병합 커밋은 `7a7ff85030b879530b8078be1bbbfd24ee71ad2c`다.
+- 2026-09-21 owner 보고에 따라 연락 두절된 Worker C의 활성 배정을 종료했다. 기존 작업 이력은 보존한다.
+- Worker D (`worker-d-claude`)를 등록하고 기존 결과를 독립 재검증하는 교정 Task `0.1B-R1`을 배정했다.
+- `0.1B-R1` 운영 기록이 main에 병합될 때까지 D는 작업을 시작하지 않으며, 시작 전 context/usage와 observed branch/base를 보고해야 한다.
 
 ## 2026-09-16 운영 모델 확정
 
@@ -49,7 +53,7 @@
 
 ## 다음 병렬화 후보
 
-`0.1B`와 상위 `0.1`은 main 재검증까지 완료되어 종료됐다. 다음 후보는 `0.2 MODULE_SPEC 전 요구사항 원자화`다. 예상 상한 65K가 크고 Worker A/C가 Usage를 공유하므로 수동 예산을 먼저 나누거나 `0.2`를 독립 하위 작업으로 분할하기 전에는 병렬 주 작업을 배정하지 않는다.
+현재 활성 후보는 Worker D의 `0.1B-R1`뿐이다. 이 작업이 verified/done이 될 때까지 `0.2 MODULE_SPEC 전 요구사항 원자화`는 시작하지 않는다. 이후 `0.2`의 예상 상한 65K가 크므로 사용 가능한 작업자 예산을 확인하거나 독립 하위 작업으로 분할한 뒤 배정한다.
 
 ## 최신 증거
 
@@ -61,3 +65,5 @@
 - Worker C 작업지시서: `.agent/tasks/T-0.1B.md`
 - PR #3: https://github.com/O-S-M-U/osmu-v2/pull/3
 - PR #4: https://github.com/O-S-M-U/osmu-v2/pull/4
+- Worker D 작업지시서: `.agent/tasks/T-0.1B-R1.md`
+- 교정 재배정 결정: `docs/decisions/20260921-worker-d-corrective-reassignment.md`
