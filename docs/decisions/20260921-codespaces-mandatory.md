@@ -19,3 +19,5 @@ Task `0.1B-R1`은 이 정책 확정 전에 로컬 macOS에서 완료됐다. owne
 ## 완료 게이트
 
 M은 환경 증거 또는 사전 승인된 예외가 없는 결과를 `verified`나 `done`으로 확정하지 않는다. M Monitor는 active task의 환경 필드 누락을 경고한다.
+
+GitHub main branch protection은 `validate-environment-contract` 검사를 strict required status check로 요구하며, 미해결 review 대화가 있으면 병합을 차단한다. 따라서 문서 규칙뿐 아니라 PR 병합 경로에서도 환경 계약을 강제한다.
