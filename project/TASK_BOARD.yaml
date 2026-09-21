@@ -1,7 +1,14 @@
 schema_version: 1
-updated_at: "2026-09-21T18:36:43+09:00"
+updated_at: "2026-09-21T19:14:15+09:00"
 source_plan: docs/planning/OSMU_V2_WORK_ORDER.md
 completion_gate: module_spec_traceability_100_percent
+environment_policy:
+  required: github_codespaces
+  devcontainer: .devcontainer/devcontainer.json
+  attestation_required_before_working: true
+  local_fallback_allowed: false
+  exception_requires_prior_owner_approval: true
+  effective_after_task: "0.1B-R1"
 
 statuses:
   - planned
@@ -123,7 +130,7 @@ tasks:
 
   - id: "0.1B-R1"
     title: Worker D의 버전 변경·결정 절차 독립 재수행
-    status: pr
+    status: done
     assignee: worker-d
     agent: worker-d-claude
     dependencies: ["0.1B"]
@@ -156,6 +163,17 @@ tasks:
     reviewer: osmu-coordinator
     review_requested_at: "2026-09-21T18:55:00+09:00"
     independent_verdict: no_discrepancy_from_0.1B
+    environment_exception:
+      type: one_time_local_host
+      approved_by: project_owner
+      approved_at: "2026-09-21T19:10:00+09:00"
+      decision: docs/decisions/20260921-codespaces-mandatory.md
+      applies_only_to: "0.1B-R1"
+    verified_at: "2026-09-21T19:10:12+09:00"
+    verified_by: osmu-coordinator
+    merged_at: "2026-09-21T19:10:12+09:00"
+    merge_commit: 4295a2e31923a65f486cc341df20b161c67bda05
+    main_verified_at: "2026-09-21T19:12:00+09:00"
     requirements: []
     evidence:
       - docs/progress/20260921.md
@@ -164,7 +182,7 @@ tasks:
 
   - id: "0.2"
     title: MODULE_SPEC 전 요구사항 원자화
-    status: planned
+    status: ready
     assignee: null
     agent: null
     dependencies: ["0.1", "0.1B-R1"]

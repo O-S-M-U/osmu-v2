@@ -1,11 +1,15 @@
 schema_version: 1
-updated_at: "2026-09-21T18:36:43+09:00"
+updated_at: "2026-09-21T19:14:15+09:00"
 
 planning_note: >-
   token_budget는 작업 계획용 추정치다. 실제 Codex 구독 사용량은 모델, reasoning,
   문맥, 도구 호출에 따라 달라지므로 usage_remaining_percent를 함께 확인한다.
 
 defaults:
+  required_environment: github_codespaces
+  devcontainer: .devcontainer/devcontainer.json
+  environment_attestation_required: true
+  local_fallback_allowed: false
   reserve_ratio: 0.20
   max_parallel_primary_tasks_per_worker: 1
   max_parallel_primary_tasks_per_shared_usage_group: 1
@@ -74,11 +78,11 @@ workers:
       - "외부 브라우저·플랫폼 차이는 작업 증거에 기록"
 
   - id: worker-d
-    display_name: Worker D (Claude / local host)
+    display_name: Worker D (Claude)
     agent_label: worker-d-claude
-    status: assigned
+    status: available
     preferred_environment: github_codespaces
-    active_task: "0.1B-R1"
+    active_task: null
     usage_window_checked_at: null
     usage_remaining_percent: null
     manual_token_budget_total: null
@@ -89,7 +93,7 @@ workers:
       - documentation
       - independent_review
     constraints:
-      - "호스트 OS와 무관하게 저장소 공통 GitHub Codespaces dev container를 우선 사용"
+      - "호스트 OS와 무관하게 저장소 공통 GitHub Codespaces dev container를 반드시 사용"
       - "작업 시작 전에 사용 가능한 context/usage가 10K 상한 작업을 감당하는지 보고"
       - "기존 Worker C 결과를 그대로 채택하지 않고 원래 계약과 기준 문서에서 독립적으로 재검증"
 

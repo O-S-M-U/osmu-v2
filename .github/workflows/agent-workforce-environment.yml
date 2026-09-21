@@ -1,0 +1,17 @@
+name: Agent Workforce Environment Gate
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate-environment-contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate Codespaces attestation
+        run: python .github/agent_workforce/check_environment_contract.py

@@ -13,7 +13,8 @@
 - 작업은 한 번에 하나만 claim하고 `agent/<worker>/<task-id>-<short-name>` 브랜치를 사용한다.
 - 예상 토큰 상한이 `.agent/workers.yaml`에 기록된 안전 잔량보다 크면 작업을 분할한다.
 - `verified`와 `done`은 `.agent/manager.md`의 증거 조건을 충족할 때만 사용한다.
-- 작업자는 GitHub Codespaces의 저장소 공통 dev container를 우선 사용한다. Codespace는 환경 통일, branch는 결과 분리의 책임을 가진다.
+- 모든 신규 작업은 GitHub Codespaces의 저장소 공통 dev container에서 수행한다. Codespace는 환경 통일, branch는 결과 분리의 책임을 가진다. 로컬 host 작업은 시작 전에 owner가 승인하고 `docs/decisions/`와 TASK_BOARD에 예외·동등성 검증을 기록한 경우에만 허용한다.
+- Codespaces 환경 증명 없이 시작한 작업은 `blocked`로 보고하며, M은 `review/pr` 결과를 `verified/done`으로 확정하지 않는다.
 - 계획 계층은 `MODULE_SPEC → WORK_ORDER → TASK_BOARD.yaml`이며, `TRACEABILITY.md`가 요구사항·작업·검사·증거를 연결한다.
 - 상태 흐름은 `planned → ready → claimed → working → review → pr → verified → done`이다. 작업 장애는 `blocked`, 명세·범위 판단은 `decision_required`로 기록한다.
 - 작업자는 `review`/`pr`까지 제출할 수 있고, `verified`/`done`은 M이 증거를 확인한 뒤 확정한다. 병합된 `main`의 TASK_BOARD가 공식 상태다.

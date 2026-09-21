@@ -5,6 +5,8 @@
 배정된 `<task-id>` 하나만 수행한다.
 
 - 시작 전에 작업 보드의 담당자, 상태, 기준 revision, 브랜치, `allowed_paths`를 확인한다.
+- GitHub Codespaces에서 `.devcontainer/devcontainer.json`을 사용했음을 `CODESPACES=true`, Codespace 이름, branch/HEAD와 도구 버전으로 증명한다. 증명할 수 없으면 작업하지 않고 `blocked`로 보고한다.
+- 로컬 host는 작업 시작 전에 승인된 `environment_exception` 결정 기록이 TASK_BOARD에 있을 때만 사용한다.
 - 예상 토큰 상한이 내 안전 잔량보다 크거나 `allowed_paths`가 비어 있으면 구현을 시작하지 않고 분할 또는 작업 경계 확정을 요청한다.
 - 다른 작업자의 소유 파일은 수정하지 않는다.
 - 구현과 함께 필요한 검사, evidence, 추적표, 진행 기록을 갱신한다.
