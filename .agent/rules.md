@@ -13,16 +13,18 @@
 
 ## 공통 실행환경
 
-11. 작업자는 운영체제와 무관하게 GitHub Codespaces의 저장소 공통 dev container를 우선 사용한다. Branch는 결과 분리용이고 Codespace/dev container는 도구·런타임·셸 통일용이다.
-12. `.devcontainer/`와 버전 고정 설정이 없는 경우 작업자는 임의의 로컬 환경 차이를 제품 기준으로 삼지 말고 M에게 환경 준비 작업을 요청한다.
-13. 비밀값·쿠키·브라우저 프로필은 Codespace나 저장소에 복사하지 않는다. 외부 플랫폼 로그인 검증은 별도 원격 증거로 기록한다.
+11. 작업자는 운영체제와 무관하게 GitHub Codespaces의 저장소 공통 dev container를 반드시 사용한다. Branch는 결과 분리용이고 Codespace/dev container는 도구·런타임·셸 통일용이다.
+12. 작업 시작 보고에는 `CODESPACES=true`, Codespace 이름, branch/HEAD, devcontainer 경로와 주요 도구 버전을 evidence로 남긴다. 환경 증명 전에는 `working`으로 전환하지 않는다.
+13. 로컬 host 실행은 시작 전 owner가 승인한 결정 기록과 TASK_BOARD의 `environment_exception`이 있을 때만 허용한다. 예외에는 사유, 기간, 동등성 검사와 승인자를 기록한다. 사후 예외 승인은 허용하지 않는다.
+14. `.devcontainer/`와 버전 고정 설정이 없는 경우 작업자는 M에게 환경 준비 작업을 요청하고 `blocked`로 멈춘다.
+15. 비밀값·쿠키·브라우저 프로필은 Codespace나 저장소에 복사하지 않는다. 외부 플랫폼 로그인 검증은 별도 원격 증거로 기록한다.
 
 ## 상태 권한
 
-14. 상태 흐름은 `planned → ready → claimed → working → review → pr → verified → done`이다. `blocked`와 `decision_required`는 예외 상태다.
-15. 작업자는 `review` 또는 `pr`까지 결과를 제출할 수 있다. `verified`와 `done`은 M이 증거를 확인한 뒤 확정한다.
-16. 작업 중 장애는 `blocked`, 명세·범위 충돌은 `decision_required`로 기록한다. 단순히 검토가 필요하다는 뜻으로 `review`를 사용하지 않는다.
-17. 작업자 대화는 실행 기록이고, 병합된 `main`의 `TASK_BOARD.yaml`, PR, progress/evidence가 공유 상태의 근거다.
+16. 상태 흐름은 `planned → ready → claimed → working → review → pr → verified → done`이다. `blocked`와 `decision_required`는 예외 상태다.
+17. 작업자는 `review` 또는 `pr`까지 결과를 제출할 수 있다. `verified`와 `done`은 M이 환경 증명과 결과 증거를 확인한 뒤 확정한다.
+18. 작업 중 장애는 `blocked`, 명세·범위 충돌은 `decision_required`로 기록한다. 단순히 검토가 필요하다는 뜻으로 `review`를 사용하지 않는다.
+19. 작업자 대화는 실행 기록이고, 병합된 `main`의 `TASK_BOARD.yaml`, PR, progress/evidence가 공유 상태의 근거다.
 
 ## 완료 보고 형식
 
@@ -30,6 +32,7 @@
 Task:
 Requirements:
 Branch / PR:
+Environment attestation:
 Changed paths:
 Checks:
 Evidence:

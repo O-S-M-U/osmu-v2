@@ -8,6 +8,21 @@
 
 ## 선행 작업
 
+## 실행환경 계약
+
+```yaml
+environment_required: github_codespaces
+devcontainer: .devcontainer/devcontainer.json
+environment_attestation_required: true
+environment_attested: false
+environment_observed: null
+codespace_name: null
+environment_evidence: null
+local_fallback_allowed: false
+environment_exception_approved: false
+environment_exception_decision: null
+```
+
 ## 작업 경계
 
 ```yaml
@@ -22,6 +37,7 @@ forbidden_paths: []
 - [ ] 검사
 - [ ] 증거
 - [ ] 추적표 갱신
+- [ ] Codespaces 이름, `CODESPACES=true`, branch/HEAD, devcontainer와 도구 버전 증거
 
 ## 계획
 
@@ -41,6 +57,7 @@ forbidden_paths: []
 | 에이전트 | unassigned |
 | 상태 | planned |
 | 브랜치 |  |
+| 실행환경 증거 |  |
 | PR |  |
 | 실제 시간 |  |
 | 실제 토큰/사용률 |  |

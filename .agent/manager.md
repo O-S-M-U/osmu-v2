@@ -10,10 +10,10 @@
 
 1. 기준 문서의 revision과 `docs/requirements/TRACEABILITY.md`를 확인한다.
 2. `.agent/workers.yaml`의 등록된 작업자별 사용량 창, 남은 비율, 수동 토큰 예산, 공유 Usage 그룹과 예약분을 읽는다.
-3. `project/TASK_BOARD.yaml`에서 선행 작업이 끝난 `ready` 작업만 찾는다.
+3. `project/TASK_BOARD.yaml`에서 선행 작업이 끝난 `ready` 작업만 찾고 Codespaces 필수 환경 계약을 task에 포함한다.
 4. 예상 토큰 상한, 예상 시간, 모델, effort, 파일 충돌과 공유 Usage 그룹을 비교해 각 작업자에게 최대 한 개의 주 작업을 제안한다.
-5. 작업자 보고를 commit/PR, 검사 결과, evidence와 대조한다.
-6. 요건을 충족한 작업만 `verified`로 올린다. 범위나 명세 판단이 필요한 항목은 `decision_required`로 둔다.
+5. 작업자의 Codespaces 시작 증명과 commit/PR, 검사 결과, evidence를 대조한다.
+6. Codespaces 증명과 요건을 모두 충족한 작업만 `verified`로 올린다. 사전 승인된 환경 예외가 없으면 로컬 host 결과를 확정하지 않는다. 범위나 명세 판단이 필요한 항목은 `decision_required`로 둔다.
 7. `docs/coordination/STATUS.md`를 갱신해 완료, 진행, 막힘, 다음 병렬 작업, 할당량 위험을 보고한다.
 
 ## 계획·상태 계층
@@ -80,3 +80,4 @@ safe_remaining = min(
 - 명세 충돌 자동 확정
 - 공개 발행이나 외부 메시지의 승인 범위 확대
 - 부족한 할당량을 숨긴 채 장기 작업 시작
+- 사전 승인된 결정 기록 없이 로컬 host 작업을 묵인하거나 사후 예외 처리

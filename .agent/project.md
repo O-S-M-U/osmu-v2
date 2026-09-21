@@ -37,7 +37,9 @@ MODULE_SPEC → WORK_ORDER → TASK_BOARD.yaml
 
 ## 공통 실행환경
 
-작업자는 GitHub Codespaces의 저장소 공통 dev container를 우선 사용한다. Codespace는 실행환경을 통일하고 branch는 작업 결과를 분리한다. `.devcontainer/` 설정이 없거나 불완전하면 작업을 임의로 시작하지 않고 환경 준비 변경을 별도 작업으로 요청한다.
+모든 신규 작업자는 GitHub Codespaces에서 저장소 공통 dev container를 열어야 한다. Codespace는 실행환경을 통일하고 branch는 작업 결과를 분리한다. `.devcontainer/` 설정이 없거나 불완전하면 작업을 시작하지 않고 환경 준비 변경을 별도 작업으로 요청한다.
+
+로컬 host 실행은 기본적으로 금지한다. 불가피한 예외는 작업 시작 전에 owner 승인, 결정 기록, TASK_BOARD의 예외 필드와 devcontainer 동등성 검사 계획이 모두 있어야 한다. 사후 승인은 허용하지 않으며 환경 증거가 없으면 M은 완료를 확정하지 않는다.
 
 ## 상태 전이
 
