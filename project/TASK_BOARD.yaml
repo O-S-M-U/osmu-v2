@@ -123,7 +123,7 @@ tasks:
 
   - id: "0.1B-R1"
     title: Worker D의 버전 변경·결정 절차 독립 재수행
-    status: claimed
+    status: review
     assignee: worker-d
     agent: worker-d-claude
     dependencies: ["0.1B"]
@@ -147,13 +147,20 @@ tasks:
     branch: agent/worker-d/0.1b-r1-version-procedure
     pr: null
     claimed_at: "2026-09-21T18:36:43+09:00"
+    started_at: "2026-09-21T18:30:00+09:00"
     base_revision: 90685947baed2c0cdbbab7f02bc7cd7ff4b48189
+    actual_start_revision: c7fd647b242ef36df68a7c80f420b00ebaf7e46a
     governance_pr: https://github.com/O-S-M-U/osmu-v2/pull/6
     branch_start_policy: fast_forward_to_current_main_before_work
     timebox_minutes: 90
     reviewer: osmu-coordinator
+    review_requested_at: "2026-09-21T18:55:00+09:00"
+    independent_verdict: no_discrepancy_from_0.1B
     requirements: []
-    evidence: []
+    evidence:
+      - docs/progress/20260921.md
+      - evidence/0.1B-R1/criteria_checklist.md
+      - evidence/0.1B-R1/scope_verification.md
 
   - id: "0.2"
     title: MODULE_SPEC 전 요구사항 원자화
