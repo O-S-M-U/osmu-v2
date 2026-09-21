@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-09-15T21:18:06+09:00"
+updated_at: "2026-09-21T18:36:43+09:00"
 
 planning_note: >-
   token_budget는 작업 계획용 추정치다. 실제 Codex 구독 사용량은 모델, reasoning,
@@ -52,9 +52,10 @@ workers:
   - id: worker-c
     display_name: Worker C (Yurim / Windows)
     agent_label: worker-c-agent
-    status: assigned
+    status: unavailable
     preferred_environment: github_codespaces
-    active_task: "0.1B"
+    active_task: null
+    availability_note: "2026-09-21 owner report: 연락 두절로 신규·활성 배정을 종료함. 기존 0.1B 이력은 보존."
     shared_usage_group: yurim-codex-account
     usage_window_checked_at: "2026-09-15T21:18:06+09:00"
     usage_remaining_percent: 99
@@ -71,6 +72,26 @@ workers:
       - "Worker A와 Codex Usage를 공유하므로 수동 예산 분할 전 병렬 주 작업 금지"
       - "Windows 호스트를 사용하더라도 작업은 공통 GitHub Codespaces dev container에서 수행"
       - "외부 브라우저·플랫폼 차이는 작업 증거에 기록"
+
+  - id: worker-d
+    display_name: Worker D (Claude / local host)
+    agent_label: worker-d-claude
+    status: assigned
+    preferred_environment: github_codespaces
+    active_task: "0.1B-R1"
+    usage_window_checked_at: null
+    usage_remaining_percent: null
+    manual_token_budget_total: null
+    manual_token_budget_remaining: null
+    capabilities:
+      - module_spec
+      - workflow
+      - documentation
+      - independent_review
+    constraints:
+      - "호스트 OS와 무관하게 저장소 공통 GitHub Codespaces dev container를 우선 사용"
+      - "작업 시작 전에 사용 가능한 context/usage가 10K 상한 작업을 감당하는지 보고"
+      - "기존 Worker C 결과를 그대로 채택하지 않고 원래 계약과 기준 문서에서 독립적으로 재검증"
 
 manager:
   id: osmu-coordinator

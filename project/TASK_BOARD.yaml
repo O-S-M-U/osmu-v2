@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-09-15T21:18:06+09:00"
+updated_at: "2026-09-21T18:36:43+09:00"
 source_plan: docs/planning/OSMU_V2_WORK_ORDER.md
 completion_gate: module_spec_traceability_100_percent
 
@@ -121,12 +121,44 @@ tasks:
       - docs/requirements/BASELINE.md
       - docs/progress/20260915.md
 
+  - id: "0.1B-R1"
+    title: Worker D의 버전 변경·결정 절차 독립 재수행
+    status: claimed
+    assignee: worker-d
+    agent: worker-d-claude
+    dependencies: ["0.1B"]
+    corrective_of: "0.1B"
+    supersedes_result_if_verified: true
+    estimated_tokens_low: 5000
+    estimated_tokens_high: 10000
+    estimated_hours_low: 0.5
+    estimated_hours_high: 1.5
+    recommended_model: claude
+    reasoning_effort: medium
+    allowed_paths:
+      - docs/requirements/BASELINE.md
+      - docs/progress/20260921.md
+      - evidence/0.1B-R1/**
+      - project/TASK_BOARD.yaml
+    read_only_paths:
+      - docs/baseline/**
+      - docs/decisions/**
+      - .agent/**
+    branch: agent/worker-d/0.1b-r1-version-procedure
+    pr: null
+    claimed_at: "2026-09-21T18:36:43+09:00"
+    base_revision: 90685947baed2c0cdbbab7f02bc7cd7ff4b48189
+    timebox_minutes: 90
+    reviewer: osmu-coordinator
+    requirements: []
+    evidence: []
+
   - id: "0.2"
     title: MODULE_SPEC 전 요구사항 원자화
     status: planned
     assignee: null
     agent: null
-    dependencies: ["0.1"]
+    dependencies: ["0.1", "0.1B-R1"]
     estimated_tokens_low: 45000
     estimated_tokens_high: 65000
     estimated_hours_low: 4
