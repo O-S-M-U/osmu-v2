@@ -36,6 +36,7 @@
 - `0.1B-R1`은 시작 전 context/usage와 observed branch/base를 보고하도록 배정됐고, D가 이를 progress에 기록했다.
 - `0.1B-R1`은 PR #8, merge commit `4295a2e31923a65f486cc341df20b161c67bda05`로 병합됐고 main에서 diff·YAML·evidence를 재검증해 `done`으로 확정했다.
 - 이 작업의 로컬 macOS 실행은 owner가 승인한 마지막 1회 예외다. 이후 작업은 Codespaces 시작 증거가 없으면 검증하지 않는다.
+- main branch protection은 `validate-environment-contract` 통과와 review 대화 해결을 병합 조건으로 강제한다.
 
 ## 2026-09-16 운영 모델 확정
 
