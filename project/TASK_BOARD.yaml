@@ -148,6 +148,8 @@ tasks:
     pr: null
     claimed_at: "2026-09-21T18:36:43+09:00"
     base_revision: 90685947baed2c0cdbbab7f02bc7cd7ff4b48189
+    governance_pr: https://github.com/O-S-M-U/osmu-v2/pull/6
+    branch_start_policy: fast_forward_to_current_main_before_work
     timebox_minutes: 90
     reviewer: osmu-coordinator
     requirements: []
